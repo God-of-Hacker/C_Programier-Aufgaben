@@ -38,6 +38,13 @@
 int main(void)
 {
     //Variablen
+    uint8_t schalter = 0;
+    uint8_t inWohnzimmer = 0;
+    uint8_t outWohnzimmer = 0;
+     
+    
+    
+    
     
     //Initialisieren
     initBoard(1);
@@ -46,11 +53,19 @@ int main(void)
     while(1)
     {
         //Eingabe------------------------------------------------------------------
+        schalter = switchReadAll();
+        inWohnzimmer = schalter & 0b00000001;
+        
         
         //Verarbeitung-------------------------------------------------------------
-        
+        if (inWohnzimmer)
+        {   outWohnzimmer = outWohnzimmer | (0x01);
+        } 
+        else
+        {   outWohnzimmer = outWohnzimmer & 0;
+        }
         //Ausgabe------------------------------------------------------------------
-        
+        ledWriteAll(outWohnzimmer);
     }
 }
 
