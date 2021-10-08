@@ -40,7 +40,11 @@ int main(void)
     //Variablen
     uint16_t schalter = 0;
     uint16_t leds = 0;
-    uint16_t schalterS12 = 0;
+    uint16_t S7 = 0;
+    uint16_t S6 = 0;
+    uint16_t S5 = 0;
+    uint16_t S4 = 0;
+    uint16_t S3 = 0;
     
     
     //Initialisieren
@@ -51,17 +55,23 @@ int main(void)
     {
         //Eingabe------------------------------------------------------------------
         schalter = switchReadAll();
-        schalterS12 = schalter & 0b10000000;
+        S7 = schalter & 0b10000000;
+        S6 = schalter & 0b01000000;
        
         
         //Verarbeitung-------------------------------------------------------------
-        if (schalterS12)
+        if (S7)
         {   leds = leds | 0x01;
         } 
         else
         {   leds = leds & 0xfffe;
         }
-        
+       if (S7 && S6 && !S5)
+       {    leds = leds | (1<<1);
+       } 
+       else
+       {    leds = leds & ~(1<<1);
+       }
       
         //Ausgabe------------------------------------------------------------------
         ledWriteAll(leds);
