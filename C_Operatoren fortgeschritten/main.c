@@ -40,8 +40,8 @@ int main(void)
     //Variablen
     uint16_t schalter = 0;
     uint16_t leds = 0;
-    uint16_t power = 0;
-    uint16_t power1 = 0;
+    uint16_t schalterS12 = 0;
+    
     
     //Initialisieren
     initBoard(1);
@@ -51,23 +51,18 @@ int main(void)
     {
         //Eingabe------------------------------------------------------------------
         schalter = switchReadAll();
-        power = schalter & 0b10000000;
-        power1 = schalter & 0b0100000;
+        schalterS12 = schalter & 0b10000000;
+       
         
         //Verarbeitung-------------------------------------------------------------
-        if (power)
+        if (schalterS12)
         {   leds = leds | 0x01;
         } 
         else
         {   leds = leds & 0xfffe;
         }
         
-        if (power1 && power)
-        {   power = leds | 0x02;
-        } 
-        else
-        {   leds = leds & 0b1111111111111101;
-        }
+      
         //Ausgabe------------------------------------------------------------------
         ledWriteAll(leds);
         
