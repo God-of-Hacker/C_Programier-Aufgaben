@@ -45,7 +45,9 @@ int main(void)
     uint16_t S5 = 0;
     uint16_t S4 = 0;
     uint16_t S3 = 0;
-    
+    uint16_t S2 = 0;
+    uint16_t S1 = 0;  
+    uint16_t S0 = 0; 
     
     //Initialisieren
     initBoard(1);
@@ -57,20 +59,33 @@ int main(void)
         schalter = switchReadAll();
         S7 = schalter & 0b10000000;
         S6 = schalter & 0b01000000;
+        S5 = schalter & 0b00100000;
+        S4 = schalter & 0b00010000;
+        S3 = schalter & 0b00001000;
+        S2 = schalter & 0b00000100;
+        S1 = schalter & 0b00000010;
+        S0 = schalter & 0b00000001;
+        
        
         
         //Verarbeitung-------------------------------------------------------------
         if (S7)
-        {   leds = leds | 0x01;
+        {   leds = leds | 0x01;         //Aufgabe 1.1
         } 
         else
         {   leds = leds & 0xfffe;
         }
        if (S7 && S6 && !S5)
-       {    leds = leds | (1<<1);
+       {    leds = leds | (1<<1);       //Aufgabe 1.2
        } 
        else
        {    leds = leds & ~(1<<1);
+       }
+       if (S6 && S5 && S4)
+       {    leds = leds & ~(1<<2);      //Aufgabe 1.3
+       } 
+       else
+       {    leds = leds | (1<<2);
        }
       
         //Ausgabe------------------------------------------------------------------
