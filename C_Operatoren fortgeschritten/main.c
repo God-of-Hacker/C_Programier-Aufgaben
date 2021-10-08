@@ -38,18 +38,18 @@
 int main(void)
 {
     //Variablen
-    uint16_t schalter = 0;
-    uint16_t leds = 0;
-    uint16_t S7 = 0;
-    uint16_t S6 = 0;
-    uint16_t S5 = 0;
-    uint16_t S4 = 0;
-    uint16_t S3 = 0;
-    uint16_t S2 = 0;
-    uint16_t S1 = 0;  
-    uint16_t S0 = 0; 
-    uint16_t S1_3 = 0;
-    
+    uint8_t schalter = 0;
+    uint8_t leds = 0;
+    uint8_t S7 = 0;
+    uint8_t S6 = 0;
+    uint8_t S5 = 0;
+    uint8_t S4 = 0;
+    uint8_t S3 = 0;
+    uint8_t S2 = 0;
+    uint8_t S1 = 0;  
+    uint8_t S0 = 0; 
+    uint8_t S1_3 = 0;
+    uint8_t S0_7 = 0;
     //Initialisieren
     initBoard(1);
     
@@ -68,34 +68,52 @@ int main(void)
         S0 = schalter & 0b00000001;
         S1_3 = switchReadAll() & 0b00001110;
         S1_3 = S1_3 >> 1;
+        S0_7 = switchReadAll() & 0b11111111;
        
         
         //Verarbeitung-------------------------------------------------------------
         if (S7)
-        {   leds = leds | 0x01;         //Aufgabe 1.1
+        {   leds = leds | 0x01;         //Aufgabe 1.1 Schalter 7 wird an Led 0 angezeigt.
         } 
         else
         {   leds = leds & 0xfffe;
         }
        if (S7 && S6 && !S5)
-       {    leds = leds | (1<<1);       //Aufgabe 1.2
+       {    leds = leds | (1<<1);       //Aufgabe 1.2: Wenn Schalter 7 und Schalter 6 aber nicht Schalter 5 aktiv ist, leuchtet LED 1, sonst nicht.
        } 
        else
        {    leds = leds & ~(1<<1);
        }
        if (S6 && S5 && S4)
-       {    leds = leds & ~(1<<2);      //Aufgabe 1.3
+       {    leds = leds & ~(1<<2);      //Aufgabe 1.3: Wenn Schalter 6, Schalter 5 oder Schalter 4 inaktiv ist, leuchtet LED 2, sonst nicht.
        } 
        else
        {    leds = leds | (1<<2);
        }
       if (S1_3 % 2)
-      {     leds = leds | (0x04);       //Aufgabe 1.4
+      {     leds = leds | (1<<3);       //Aufgabe 1.4: Wenn der Wert von Schalter 1-3(Schalter 1 ist LSB, Schalter 3 ist MSB)
+                                        //ungeradeist, leuchtet LED 3, sonst nicht.
       } 
       else
-      {     leds = leds & ~(0x04);
+      {     leds = leds & ~(1<<3);      
       }
-        //Ausgabe------------------------------------------------------------------
+        if (S1_3 % 2)
+        {     leds = leds & ~ (1<<4);        //Aufgabe 1.5: Wenn der Wert von Schalter 1-3(Schalter 1 ist LSB, Schalter 3 ist MSB)
+                                            //geradeist, leuchtet LED 4, sonst nicht
+        }
+        else
+        {leds = leds |(1<<4);
+        }
+         
+      if (S0_7 % 17 )
+      {     leds = leds & ~(0x20);       //Aufgabe 1.6: Wenn der Wert an Schalter 0 bis 7 (Schalter 0 ist LSB, 
+                                        //Schalter 7 ist MSB) durch 17 teilbar ist, leuchtet LED 5, sonst nicht.
+      } 
+      else
+      {     leds = leds | (0x20);
+      }
+      
+S        //Ausgabe------------------------------------------------------------------
         ledWriteAll(leds);
         
     }
