@@ -51,6 +51,8 @@ int main(void)
     uint8_t S1_3 = 0;
     uint8_t S0_7 = 0;
     uint8_t S4_6 = 0;
+    uint16_t LedAusgabe = 0;
+    
     
     //Initialisieren
     initBoard(1);
@@ -129,8 +131,17 @@ int main(void)
       {     leds = leds & ~(0x80);
       }
       
+      if (S0)
+      {     LedAusgabe = 0xffff;       //Aufgabe 1.8:Wenn Schalter 0 aktiv ist,soll die gesamte Ausgabe invertiert werden.
+            
+      } 
+      else
+      {    LedAusgabe = 0;
+      }
+    
+      
         //Ausgabe------------------------------------------------------------------
-        ledWriteAll(leds);
+        ledWriteAll(leds ^ LedAusgabe);
         
     }
 }
