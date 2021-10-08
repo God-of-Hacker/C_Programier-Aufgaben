@@ -50,6 +50,8 @@ int main(void)
     uint8_t S0 = 0; 
     uint8_t S1_3 = 0;
     uint8_t S0_7 = 0;
+    uint8_t S4_6 = 0;
+    
     //Initialisieren
     initBoard(1);
     
@@ -69,6 +71,8 @@ int main(void)
         S1_3 = switchReadAll() & 0b00001110;
         S1_3 = S1_3 >> 1;
         S0_7 = switchReadAll() & 0b11111111;
+        S4_6 = switchReadAll() & 0b01110000;
+        S4_6 = S4_6 >>4;
        
         
         //Verarbeitung-------------------------------------------------------------
@@ -110,10 +114,22 @@ int main(void)
                                         //Schalter 7 ist MSB) durch 17 teilbar ist, leuchtet LED 5, sonst nicht.
       } 
       else
-      {     leds = leds | (0x20);
+      {     leds = leds | (0x20);       //Aufgabe 1.7: der Wert der Schalter 1-3 grösser ist als der Wert an Schalter4-6
+      }                                 // leuchtet Led 6, sonst nicht.
+      if (S1_3 > S4_6)
+      {     leds = leds | (0x40);
+      } 
+      else
+      {     leds = leds & ~(0x40);
+      }                                 //Falls die beiden Werte gleich gross sind, leuchtet Led 7, sonst nicht.
+      if (S1_3 == S4_6)
+      {     leds = leds | (0x80);
+      }
+      else
+      {     leds = leds & ~(0x80);
       }
       
-S        //Ausgabe------------------------------------------------------------------
+        //Ausgabe------------------------------------------------------------------
         ledWriteAll(leds);
         
     }
