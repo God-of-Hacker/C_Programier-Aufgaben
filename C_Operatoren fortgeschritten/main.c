@@ -143,6 +143,9 @@ int main(void)
         //Ausgabe------------------------------------------------------------------
         ledWriteAll(leds ^ LedAusgabe);
         
+        
+        
     }
 }
+
 
