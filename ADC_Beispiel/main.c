@@ -60,9 +60,21 @@ int main(void)
         } 
         else
         {
-            lcdLog("nicht voll");
         }
-        
+        if (u_mV > 3500)
+        {
+            lcdLog("normal");
+        } 
+        else
+        {
+        }
+        if (u_mV > 3100)
+        {
+            lcdLog("leer");
+        } 
+        else
+        {
+        }
     }
 }
 
