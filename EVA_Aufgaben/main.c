@@ -43,6 +43,7 @@ int main(void)
     uint8_t outWohnzimmer = 0;
     uint8_t inBad = 0;
     uint8_t outBad = 0;
+    uint8_t Spiegelschrank = 0;
     
     
     
@@ -56,23 +57,29 @@ int main(void)
         //Eingabe------------------------------------------------------------------
         schalter = switchReadAll();
         inWohnzimmer = schalter & 0b00000001;
-        inBad = schalter & 0b00000010; 
+        inBad  = schalter & 0b00000010; 
         
         //Verarbeitung-------------------------------------------------------------
         if (inWohnzimmer)
-        {   outWohnzimmer = outWohnzimmer | (0x01);
+        {   
+            outWohnzimmer = outWohnzimmer | (0x01);
         } 
         else
-        {   outWohnzimmer = outWohnzimmer & 0;
+        {  
+             outWohnzimmer = outWohnzimmer & ~(0x01);
         }
         if (inBad)
         {
+            outBad = outBad | (0x02);
+            Spiegelschrank = Spiegelschrank | (0x04);
         } 
         else
         {
+            outBad = outBad & ~(0x02);
+            Spiegelschrank = Spiegelschrank & ~(0x04);
         }
         //Ausgabe------------------------------------------------------------------
-        ledWriteAll(outWohnzimmer);
+        ledWriteAll(outWohnzimmer | outBad | Spiegelschrank);
     }
 }
 
