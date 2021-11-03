@@ -64,11 +64,11 @@ int main(void)
         schalter = switchReadAll();
         S5 = schalter & (1<<0);
         S6 = schalter & (1<<1);
-        S7 = schalter & (1<<3);
-        S8 = schalter & (1<<4);
-        S9 = schalter & (1<<5);
-        S10 = schalter & (1<<6);
-        S11 = schalter & (1<<7);
+        S7 = schalter & (1<<2);
+        S8 = schalter & (1<<3);
+        S9 = schalter & (1<<4);
+        S10 = schalter & (1<<5);
+        S11 = schalter & (1<<6);
         
         
         
@@ -82,11 +82,34 @@ int main(void)
         {
             H0 = H0 & ~(0x01);
         }
+        if (S6)
+        {
+            H1 = H1 | (0x02);
+        } 
+        else
+        {
+             H1 = H1 & ~(0x02);
+        }
+       if (S7)
+       {
+           H1 = H1 | (0x02);
+           H2 = H2 | (0x04);
+           H3 = H3 | (0x08);
+           H4 = H4 | (0x10);
+           
+       } 
+       else
+       {
+           H1 = H1 & ~(0x02);
+           H2 = H2 & ~(0x04);
+           H3 = H3 & ~(0x08);
+           H4 = H4 & ~(0x10);
+       }
         
         
         //Ausgabe------------------------------------------------------------------
         
-        ledWriteAll(H0);
+        ledWriteAll(H0 | H1 | H2 | H3 | H4);
         
     }
 }
