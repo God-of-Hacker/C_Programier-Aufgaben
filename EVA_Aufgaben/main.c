@@ -64,11 +64,11 @@ int main(void)
         //Eingabe------------------------------------------------------------------
         schalter = switchReadAll();
         inWohnzimmer = schalter & 0b00000001;
-        inBad = schalter & 0b00000010; 
-        in1Og = schalter & 0b00000100;
-        in2Og = schalter & 0b00001000;
-        inEg  = schalter & 0b00010000;
-        inLichtSens = schalter & 0b00100000;
+        inBad = schalter & 0b00000100; 
+        in1Og = schalter & 0b00010000;
+        in2Og = schalter & 0b00100000;
+        inEg  = schalter & 0b01000000;
+        inLichtSens = schalter & 0b10000000;
         
         //Verarbeitung-------------------------------------------------------------
         if (inWohnzimmer)
