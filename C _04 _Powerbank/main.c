@@ -62,18 +62,19 @@ int main(void)
         if (On)
         {
             OffLed = OffLed | (0x01);
+            
         } 
         else
         {
             OffLed = OffLed & ~(0xfffff);
         }
-        if (Laden)
+        if (Laden && On)
         {
             LadenLed = LadenLed | (0x02);
         } 
         else
         {
-            LadenLed = LadenLed & ~(0x2);
+            LadenLed = LadenLed & ~(0x02);
         }
         
         //Ausgabe------------------------------------------------------------------
