@@ -43,7 +43,11 @@ int main(void)
     uint8_t outWohnzimmer = 0;
     uint8_t inBad = 0;
     uint8_t outBad = 0;
-    uint8_t Spiegelschrank = 0;
+    uint8_t outSpiegel = 0;
+    uint8_t in1Og = 0;
+    uint8_t in2Og = 0;
+    uint8_t inEg = 0;
+    uint8_t outEg = 0;
     
     
     
@@ -57,7 +61,10 @@ int main(void)
         //Eingabe------------------------------------------------------------------
         schalter = switchReadAll();
         inWohnzimmer = schalter & 0b00000001;
-        inBad  = schalter & 0b00000010; 
+        inBad = schalter & 0b00000010; 
+        in1Og = schalter & 0b00000100;
+        in2Og = schalter & 0b00001000;
+        inEg  = schalter & 0b00010000;
         
         //Verarbeitung-------------------------------------------------------------
         if (inWohnzimmer)
@@ -71,15 +78,23 @@ int main(void)
         if (inBad)
         {
             outBad = outBad | (0x02);
-            Spiegelschrank = Spiegelschrank | (0x04);
+            outSpiegel = outSpiegel | (0x04);
         } 
         else
         {
             outBad = outBad & ~(0x02);
-            Spiegelschrank = Spiegelschrank & ~(0x04);
+            outSpiegel = outSpiegel & ~(0x04);
+        }
+        if (in1Og | in2Og | inEg)
+        {
+            outEg = outEg | (0x08);
+        } 
+        else
+        {
+            outEg = outEg & ~(0x08);
         }
         //Ausgabe------------------------------------------------------------------
-        ledWriteAll(outWohnzimmer | outBad | Spiegelschrank);
+        ledWriteAll(outWohnzimmer | outBad | outSpiegel | outEg);
     }
 }
 
