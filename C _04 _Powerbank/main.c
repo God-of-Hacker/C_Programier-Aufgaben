@@ -38,6 +38,14 @@
 int main(void)
 {
     //Variablen
+    uint8_t schalter = 0;
+    uint16_t On = 0;
+    uint16_t OffLed = 0;
+    uint16_t Laden = 0;
+    uint16_t LadenLed = 0;
+    
+    
+   
     
     //Initialisieren
     initBoard(1);
@@ -46,11 +54,31 @@ int main(void)
     while(1)
     {
         //Eingabe------------------------------------------------------------------
+        schalter = switchReadAll();
+        On = schalter & (1<<0);
+        Laden =schalter & (1<<1);
         
         //Verarbeitung-------------------------------------------------------------
+        if (On)
+        {
+            OffLed = OffLed | (0x01);
+        } 
+        else
+        {
+            OffLed = OffLed & ~(0xfffff);
+        }
+        if (Laden)
+        {
+            LadenLed = LadenLed | (0x02);
+        } 
+        else
+        {
+            LadenLed = LadenLed & ~(0x2);
+        }
         
         //Ausgabe------------------------------------------------------------------
         
+        ledWriteAll(OffLed | LadenLed);
     }
 }
 
