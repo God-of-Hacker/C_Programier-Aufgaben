@@ -42,7 +42,10 @@ int main(void)
     uint16_t On = 0;
     uint16_t OffLed = 0;
     uint16_t Laden = 0;
-    uint16_t LadenLed = 0;
+    uint16_t LadenLed = 0; 
+    uint8_t inBattStatus = 0;
+    uint16_t outBattLed=0;
+    
     
     
    
@@ -56,17 +59,20 @@ int main(void)
         //Eingabe------------------------------------------------------------------
         schalter = switchReadAll();
         On = schalter & (1<<0);
-        Laden =schalter & (1<<1);
+        Laden = schalter & (1<<1);      
+        inBattStatus = switchReadAll() & 0b00111100;
+        inBattStatus = inBattStatus >> 2;
+        
         
         //Verarbeitung-------------------------------------------------------------
         if (On)
         {
-            OffLed = OffLed | (0x01);
+            OffLed = OffLed | (0b00000001);
             
         } 
         else
         {
-            OffLed = OffLed & ~(0xfffff);
+            OffLed = OffLed & ~(0x01);
         }
         if (Laden && On)
         {
@@ -76,10 +82,38 @@ int main(void)
         {
             LadenLed = LadenLed & ~(0x02);
         }
+                    
+         if (inBattStatus == 0)
+         {
+             outBattLed = outBattLed  & ~(0xff);
+         }
+         else if (inBattStatus < 5)
+         {
+             outBattLed = outBattLed | 0b10000000;
+             
+         }
+         
+        else if  ((inBattStatus > 5)  && (inBattStatus <= 11 ))
+         {
+             outBattLed = outBattLed | 0b11000000;
+             
+             
+         }
+         else if ((inBattStatus >  12) && (inBattStatus <= 15))
+         {
+             
+             outBattLed = outBattLed | 0b11100000;
+         }            
+        
+       
+        
+               
         
         //Ausgabe------------------------------------------------------------------
         
-        ledWriteAll(OffLed | LadenLed);
+        ledWriteAll(OffLed | LadenLed |outBattLed);
     }
 }
 
+      
+    
