@@ -93,13 +93,13 @@ int main(void)
              
          }
          
-        else if  ((inBattStatus > 5)  && (inBattStatus <= 11 ))
+        else if  ((inBattStatus >= 5)  && (inBattStatus <= 11 ))
          {
              outBattLed = outBattLed | 0b11000000;
              
              
          }
-         else if ((inBattStatus >  12) && (inBattStatus <= 15))
+         else if ((inBattStatus >=  12) && (inBattStatus <= 15))
          {
              
              outBattLed = outBattLed | 0b11100000;
