@@ -81,30 +81,30 @@ int main(void)
         }
         if (inBad)
         {
-            outBad = outBad | (0x02);
-            outSpiegel = outSpiegel | (0x04);
+            outBad = 0x02;
+            outSpiegel = 0x04;
         } 
         else
         {
-            outBad = outBad & ~(0x02);
-            outSpiegel = outSpiegel & ~(0x04);
+            outBad = 0;
+            outSpiegel = 0;
         }
         if (in1Og | in2Og | inEg  )
         {
-            outEg = outEg | (0x08);
-            outOg = outOg | (0x08);
+            outEg = 0x08;
+            outOg = 0x08;
            
         } 
         else
         {
-            outEg = outEg & ~(0x08);
-            outOg = outOg & ~(0x08);
+            outEg = 0;
+            outOg = 0;
             
         }
         if (inLichtSens)
         {
-            outEg = outEg & ~(0x08);
-            outOg = outOg & ~(0x08);
+            outEg = 0;
+            outOg = 0;
         } 
         
         //Ausgabe------------------------------------------------------------------
