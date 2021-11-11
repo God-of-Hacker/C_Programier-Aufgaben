@@ -93,7 +93,7 @@ int main(void)
         
         if (S5)
         {
-            H0 = H0 | OUT_MASKE_BELEUCHTUNG_ZEUGHAUSSTR;
+            H0 = OUT_MASKE_BELEUCHTUNG_ZEUGHAUSSTR;
         } 
         else
         {
@@ -122,7 +122,7 @@ int main(void)
            H3 = H3 & OFF;
            H4 = H4 & OFF;
        }
-       if (S8 | S9)
+       if (S8 || S9)
        {
            H5 = H5 | OUT_MASKE_BELEUCHTUNG_OBERMUEHLSTR; 
        } 
@@ -130,7 +130,7 @@ int main(void)
        {
            H5 = H5 & OFF;
        }
-       if (S10 | S11)
+       if (S10 || S11)
        {
            H6 = H6 | OUT_MASKE_BELEUCHTUNG_MATTENBACHSTR;
        } 
