@@ -73,11 +73,11 @@ int main(void)
         //Verarbeitung-------------------------------------------------------------
         if (inWohnzimmer)
         {   
-            outWohnzimmer = outWohnzimmer | (0x01);
+            outWohnzimmer = 1;
         } 
         else
         {  
-             outWohnzimmer = outWohnzimmer & ~(0x01);
+             outWohnzimmer = 0;
         }
         if (inBad)
         {
@@ -106,10 +106,7 @@ int main(void)
             outEg = outEg & ~(0x08);
             outOg = outOg & ~(0x08);
         } 
-        else
-        {
-           
-        }
+        
         //Ausgabe------------------------------------------------------------------
         ledWriteAll(outWohnzimmer | outBad | outSpiegel | outEg | outOg);
     }

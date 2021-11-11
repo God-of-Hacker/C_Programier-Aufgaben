@@ -392,6 +392,8 @@ int main(void)
  1d6:	8c 27       	eor	r24, r28
  1d8:	01 d0       	rcall	.+2      	; 0x1dc <ledWriteAll>
         
+        
+        
     }
  1da:	b1 cf       	rjmp	.-158    	; 0x13e <main+0x1a>
 

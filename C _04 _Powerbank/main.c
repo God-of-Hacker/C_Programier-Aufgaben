@@ -45,6 +45,7 @@ int main(void)
     uint16_t LadenLed = 0; 
     uint8_t inBattStatus = 0;
     uint16_t outBattLed=0;
+    uint16_t strom = 0;
     
     
     
@@ -62,6 +63,7 @@ int main(void)
         Laden = schalter & (1<<1);      
         inBattStatus = switchReadAll() & 0b00111100;
         inBattStatus = inBattStatus >> 2;
+        strom = schalter & 0b10000000;
         
         
         //Verarbeitung-------------------------------------------------------------
@@ -99,13 +101,25 @@ int main(void)
              
              
          }
-         else if ((inBattStatus >=  12) && (inBattStatus <= 15))
+         else if ((inBattStatus >=  12) && (inBattStatus < 15))
          {
              
              outBattLed = outBattLed | 0b11100000;
          }            
+         
+         if (inBattStatus == 15)
+         {
+             outBattLed = outBattLed & ~(0b11100000);
+         } 
+         
         
-       
+       if (strom)
+       {
+           LadenLed = LadenLed | 0x02;
+       } 
+       else
+       {
+       }
         
                
         
