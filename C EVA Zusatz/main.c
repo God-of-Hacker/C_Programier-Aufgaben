@@ -97,46 +97,46 @@ int main(void)
         } 
         else
         {
-            H0 = H0 & OFF;
+            H0 =  OFF;
         }
         if (S6)
         {
-            H1 = H1 | OUT_MASKE_BELEUCHTUNG_WILDBACHSTR;
+            H1 =  OUT_MASKE_BELEUCHTUNG_WILDBACHSTR;
         } 
         else
         {
-             H1 = H1 & OFF;
+             H1 = OFF;
         }
        if (S7)
        {
-           H1 = H1 | OUT_MASKE_BELEUCHTUNG_WILDBACHSTR;
-           H2 = H2 | OUT_MASKE_BELEUCHTUNG_QUATIER_C;
-           H3 = H3 | OUT_MASKE_BELEUCHTUNG_QUATIER_D;
-           H4 = H4 | OUT_MASKE_BELEUCHTUNG_QUATIER_F;
+           H1 =  OUT_MASKE_BELEUCHTUNG_WILDBACHSTR;
+           H2 =  OUT_MASKE_BELEUCHTUNG_QUATIER_C;
+           H3 =  OUT_MASKE_BELEUCHTUNG_QUATIER_D;
+           H4 =  OUT_MASKE_BELEUCHTUNG_QUATIER_F;
            
        } 
        else
        {
            
-           H2 = H2 & OFF;
-           H3 = H3 & OFF;
-           H4 = H4 & OFF;
+           H2 = OFF;
+           H3 = OFF;
+           H4 = OFF;
        }
        if (S8 || S9)
        {
-           H5 = H5 | OUT_MASKE_BELEUCHTUNG_OBERMUEHLSTR; 
+           H5 =  OUT_MASKE_BELEUCHTUNG_OBERMUEHLSTR; 
        } 
        else
        {
-           H5 = H5 & OFF;
+           H5 =  OFF;
        }
        if (S10 || S11)
        {
-           H6 = H6 | OUT_MASKE_BELEUCHTUNG_MATTENBACHSTR;
+           H6 = OUT_MASKE_BELEUCHTUNG_MATTENBACHSTR;
        } 
        else
        {
-           H6 = H6 & OFF;
+           H6 = OFF;
        }
       
         
