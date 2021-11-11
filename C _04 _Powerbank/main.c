@@ -33,6 +33,20 @@
 
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
+#define     ON_OFF_SCHALTER         (1<<0)
+#define     LADE_GERAET             (1<<1)
+#define     AKKUZUSTAND             0b00111100  
+#define     STROM                   0b10000000
+#define     IN_OFFSET_AKKUZUSTAND   2
+
+#define     OFF                              0
+#define     ON_OFF_LED                       1
+#define     OUT_POWER_LED                    1
+#define     OUT__AKKU_LEER                   0             
+#define     OUT__AKKU_FAST_LEER     0b10000000 
+#define     OUT__AKKU__HALB_VOLL    0b11000000
+#define     OUT__AKKU__FAST_VOLL    0b11100000
+#define     OUT_LADE_POWERBANK_LED         0x4
 
 //Hauptprogramm
 int main(void)
@@ -60,70 +74,70 @@ int main(void)
     {
         //Eingabe------------------------------------------------------------------
         schalter = switchReadAll();
-        On = schalter & (1<<0);
-        Laden = schalter & (1<<1);      
-        inBattStatus = switchReadAll() & 0b00111100;
-        inBattStatus = inBattStatus >> 2;
-        strom = schalter & 0b10000000;
+        On = schalter & ON_OFF_SCHALTER;
+        Laden = schalter & LADE_GERAET;      
+        inBattStatus = switchReadAll() & AKKUZUSTAND;
+        inBattStatus = inBattStatus >> IN_OFFSET_AKKUZUSTAND;
+        strom = schalter & STROM;
         
         
         //Verarbeitung-------------------------------------------------------------
         if (On)
         {
-            OffLed = 1;
+            OffLed = ON_OFF_LED;
             
         } 
         else
         {
-            OffLed = 0;
+            OffLed = OFF;
         }
         if (Laden && On)
         {
-            LadenLed = 0x02;
+            LadenLed = LADE_GERAET;
         } 
         else
         {
-            LadenLed = 0;
+            LadenLed = OFF;
         }
                     
        if (On)
        {
            if (On && inBattStatus == 0)
          {
-             outBattLed = 0;
+             outBattLed = OUT__AKKU_LEER;
          }
          else if (On && inBattStatus < 5)
          {
-             outBattLed = 0b10000000;
+             outBattLed = OUT__AKKU_FAST_LEER;
              
          }
          
         else if  (On &&(inBattStatus >= 5)  && (inBattStatus <= 11 )  )
          {
-             outBattLed =  0b11000000;
+             outBattLed =  OUT__AKKU__HALB_VOLL;
              
              
          }
          else if (On &&(inBattStatus >=  12) && (inBattStatus <= 15) )
          {
              
-             outBattLed = 0b11100000;
+             outBattLed = OUT__AKKU__FAST_VOLL;
          }            
 
        } 
        else
        {
-           outBattLed = 0;
+           outBattLed = OFF;
        }
          
         
        if ( strom && (inBattStatus < 15))
        {
-         LedStrom =  0x4;
+         LedStrom =  OUT_LADE_POWERBANK_LED;
        }
       else 
       {
-          LedStrom = 0;
+          LedStrom = OFF;
       
       }
           
