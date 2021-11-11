@@ -34,6 +34,9 @@
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
 
+#define 
+
+
 //Hauptprogramm
 int main(void)
 {

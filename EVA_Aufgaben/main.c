@@ -34,6 +34,24 @@
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
 
+#define     IN_MASKE_WOHNZIMMER     (0x01)
+#define     IN_MASKE_BAD            (0x04)
+#define     IN_MASKE_1OG            (0x10)
+#define     IN_MASKE_2OG            (0x20)
+#define     IN_MASKE_EG             (0x40)
+#define     IN_MASKE_LICHTSENS      (0x80)
+
+#define     OUT_MASKE_WOHNZIMMER    (0x01)
+#define     OUT_MASKE_BAD           (0x02)
+#define     OUT_MASKE_SPIEGEL       (0x04)
+#define     OUT_MASKE_OG            (0x08)
+#define     OUT_MASKE_EG            (0x10)
+
+#define     OFF                        0
+
+
+
+
 //Hauptprogramm
 int main(void)
 {
@@ -63,48 +81,48 @@ int main(void)
     {
         //Eingabe------------------------------------------------------------------
         schalter = switchReadAll();
-        inWohnzimmer = schalter & 0b00000001;
-        inBad = schalter & 0b00000100; 
-        in1Og = schalter & 0b00010000;
-        in2Og = schalter & 0b00100000;
-        inEg  = schalter & 0b01000000;
-        inLichtSens = schalter & 0b10000000;
+        inWohnzimmer = schalter & IN_MASKE_WOHNZIMMER;
+        inBad = schalter & IN_MASKE_BAD; 
+        in1Og = schalter & IN_MASKE_1OG;
+        in2Og = schalter & IN_MASKE_2OG;
+        inEg  = schalter & IN_MASKE_EG;
+        inLichtSens = schalter & IN_MASKE_LICHTSENS;
         
         //Verarbeitung-------------------------------------------------------------
         if (inWohnzimmer)
         {   
-            outWohnzimmer = 1;
+            outWohnzimmer = OUT_MASKE_WOHNZIMMER;
         } 
         else
         {  
-             outWohnzimmer = 0;
+             outWohnzimmer = OFF;
         }
         if (inBad)
         {
-            outBad = 0x02;
-            outSpiegel = 0x04;
+            outBad = OUT_MASKE_BAD;
+            outSpiegel = OUT_MASKE_SPIEGEL;
         } 
         else
         {
-            outBad = 0;
-            outSpiegel = 0;
+            outBad = OFF;
+            outSpiegel = OFF;
         }
         if (in1Og | in2Og | inEg  )
         {
-            outEg = 0x08;
-            outOg = 0x08;
+            outEg = OUT_MASKE_EG;
+            outOg = OUT_MASKE_OG;
            
         } 
         else
         {
-            outEg = 0;
-            outOg = 0;
+            outEg = OFF;
+            outOg = OFF;
             
         }
         if (inLichtSens)
         {
-            outEg = 0;
-            outOg = 0;
+            outEg = OFF;
+            outOg = OFF;
         } 
         
         //Ausgabe------------------------------------------------------------------
