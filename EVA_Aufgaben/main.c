@@ -107,7 +107,7 @@ int main(void)
             outBad = OFF;
             outSpiegel = OFF;
         }
-        if (in1Og | in2Og | inEg  )
+        if (in1Og || in2Og || inEg  )
         {
             outEg = OUT_MASKE_EG;
             outOg = OUT_MASKE_OG;
