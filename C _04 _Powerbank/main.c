@@ -79,11 +79,11 @@ int main(void)
         }
         if (Laden && On)
         {
-            LadenLed = LadenLed | (0x02);
+            LadenLed = 0x02;
         } 
         else
         {
-            LadenLed = LadenLed & ~(0x02);
+            LadenLed = 0;
         }
                     
        if (On)
@@ -119,11 +119,11 @@ int main(void)
         
        if ( strom && (inBattStatus < 15))
        {
-         LedStrom = LedStrom | 0x4;
+         LedStrom =  0x4;
        }
       else 
       {
-          LedStrom = LedStrom  & ~(0x04);
+          LedStrom = 0;
       
       }
           
