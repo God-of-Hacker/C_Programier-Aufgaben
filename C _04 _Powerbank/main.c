@@ -46,6 +46,7 @@ int main(void)
     uint8_t inBattStatus = 0;
     uint16_t outBattLed=0;
     uint16_t strom = 0;
+    uint16_t LedStrom = 0;
     
     
     
@@ -69,12 +70,12 @@ int main(void)
         //Verarbeitung-------------------------------------------------------------
         if (On)
         {
-            OffLed = OffLed | (0b00000001);
+            OffLed = 1;
             
         } 
         else
         {
-            OffLed = OffLed & ~(0x01);
+            OffLed = 0;
         }
         if (Laden && On)
         {
@@ -85,47 +86,52 @@ int main(void)
             LadenLed = LadenLed & ~(0x02);
         }
                     
-         if (inBattStatus == 0)
-         {
-             outBattLed = outBattLed  & ~(0xff);
-         }
-         else if (inBattStatus < 5)
-         {
-             outBattLed = outBattLed | 0b10000000;
-             
-         }
-         
-        else if  ((inBattStatus >= 5)  && (inBattStatus <= 11 ))
-         {
-             outBattLed = outBattLed | 0b11000000;
-             
-             
-         }
-         else if ((inBattStatus >=  12) && (inBattStatus < 15))
-         {
-             
-             outBattLed = outBattLed | 0b11100000;
-         }            
-         
-         if (inBattStatus == 15)
-         {
-             outBattLed = outBattLed & ~(0b11100000);
-         } 
-         
-        
-       if (strom)
+       if (On)
        {
-           LadenLed = LadenLed | 0x02;
+           if (On && inBattStatus == 0)
+         {
+             outBattLed = 0;
+         }
+         else if (On && inBattStatus < 5)
+         {
+             outBattLed = 0b10000000;
+             
+         }
+         
+        else if  (On &&(inBattStatus >= 5)  && (inBattStatus <= 11 )  )
+         {
+             outBattLed =  0b11000000;
+             
+             
+         }
+         else if (On &&(inBattStatus >=  12) && (inBattStatus <= 15) )
+         {
+             
+             outBattLed = 0b11100000;
+         }            
+
        } 
        else
        {
+           outBattLed = 0;
        }
+         
         
-               
+       if ( strom && (inBattStatus < 15))
+       {
+         LedStrom = LedStrom | 0x4;
+       }
+      else 
+      {
+          LedStrom = LedStrom  & ~(0x04);
+      
+      }
+          
+                
         
         //Ausgabe------------------------------------------------------------------
         
-        ledWriteAll(OffLed | LadenLed |outBattLed);
+        ledWriteAll(OffLed | LadenLed |outBattLed | LedStrom);
     }
 }
 
