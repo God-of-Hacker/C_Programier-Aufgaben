@@ -33,8 +33,8 @@
 
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
-#define     VERZOEGERUNG    2000
-#define     VERZOEGERUNG_1  4000
+#define     VERZOEGERUNG    100
+#define     VERZOEGERUNG_1  200
 #define     ON_LEDS         (0xffff)
 #define     OFF_LEDS        0
 #define     SYSTEMTAKT      10
@@ -95,4 +95,9 @@ int main(void)
 
     }
 }
+
+
+
+
+
 
