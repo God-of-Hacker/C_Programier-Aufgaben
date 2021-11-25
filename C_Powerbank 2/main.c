@@ -3,7 +3,7 @@
 * MMMMMMMMMMMM   SSSSSSSSSSSS   WW   WW   WW   MECHATRONIK
 * MM   MM   MM   SS             WW   WW   WW   SCHULE
 * MM   MM   MM   SSSSSSSSSSSS   WW   WW   WW   WINTERTHUR
-* MM   MM   MM             SS   WW   WW   WW   
+* MM   MM   MM             SS   WW   WW   WW
 * MM   MM   MM   SSSSSSSSSSSS   WWWWWWWWWWWW   www.msw.ch
 *
 *
@@ -43,29 +43,40 @@
 #define     OFF                          0
 #define     OUT_POWER_LED             0x01
 #define     OUT_LADE_ANZEIGE_LED      0x02
-#define     OUT_SPANNUG_0            0b00000000
-#define     OUT_SPANNUG_1            0b00100000
-#define     OUT_SPANNUG_2            0b01100000
+#define     MAX_SPANNUG                 3
 #define     OUT_SPANNUG_3            0b11100000
+#define     OUT_AKKU_LED             (1<<4)
 
-#define SYSTEM_TICK_MS      10
-#define ON_TIME             250
-#define OFF_TIME            250
-#define PERIOD              (ON_TIME+OFF_TIME)
+#define SYSTEM_TICK_MS             10
+#define ON_TIME_LADEN             250
+#define OFF_TIME_LADEN            250
+#define PERIOD_LADEN              (ON_TIME_LADEN+OFF_TIME_LADEN)
+
+#define ON_TIME_SELBER             100
+#define OFF_TIME_SELBER            400
+#define PERIOD_SELBER              (ON_TIME_SELBER+OFF_TIME_SELBER)
+
+#define ON_AKKU                    200
+#define OFF_AKKU                   800
+#define PERIOD_AKKU              (ON_AKKU+OFF_AKKU)
 //Hauptprogramm
 int main(void)
 {
     //Variablen
-     uint8_t inSpannungsmessung = 0;
-     uint8_t On = 0;
-     uint8_t ger_Laden = 0;
-     uint8_t selber_laden = 0;
-     uint16_t powerLed = 0;
-     uint16_t ladenAnzeige_Blinken = 0;
-     uint16_t ladenAnzeige_Led = 0;
-     uint16_t akkuanzeige_Led = 0;
-     uint16_t outSpannungLed = 0; 
-     uint64_t timerBlink_ms = 0;
+    uint8_t inSpannungsmessung = 0;
+    uint8_t On = 0;
+    uint8_t geraet_Laden = 0;
+    uint8_t selber_laden = 0;
+    uint16_t powerLed = 0;
+    uint16_t ladenAnzeige_Blinken = 0;
+    uint16_t selberLaden_blinken = 0;
+    uint16_t ladenAnzeige_Led = 0;
+    uint16_t akkuanzeige_Led = 0;
+    uint16_t outSpannungLed = 0;
+    uint64_t timerBlink_laden_ms = 0;
+    uint64_t timerBlink_selber_ms = 0;
+    uint64_t akkuBlinken = 0;
+    uint64_t timerBlink_akku_ms = 0;
     
     //Initialisieren
     initBoard(1);
@@ -76,59 +87,145 @@ int main(void)
         //Eingabe------------------------------------------------------------------
         inSpannungsmessung = switchReadAll() & IN_SPANNUNGSMESSUNG;
         inSpannungsmessung = inSpannungsmessung >> IN_OFFSET_SPANNUNG;
-        ger_Laden = switchReadAll() & IN_LADE_GERAET;
+        geraet_Laden = switchReadAll() & IN_LADE_GERAET;
         selber_laden = switchReadAll() & IN_SELBER_LADE_GERAET;
         On = switchReadAll() & ON_OFF_SCHALTER;
         
         //Verarbeitung-------------------------------------------------------------
-       
-       if (ger_Laden)
-       {
-           ladenAnzeige_Blinken = 1;
-       }
-       else
-       {
-           ladenAnzeige_Blinken = 0;
-           ladenAnzeige_Led = OFF;
-       }
-       
         
+        if (geraet_Laden)
+        {
+            ladenAnzeige_Blinken = 1;
+        }
+        else
+        {
+            ladenAnzeige_Blinken = 0;
+            ladenAnzeige_Led = OFF;
+        }
+        if (selber_laden)
+        {
+            selberLaden_blinken = 1;
+        }
+        else
+        {
+            selberLaden_blinken = 0;
+            powerLed = OFF;
+        }
+        if (inSpannungsmessung == 0)
+        {
+            akkuBlinken = 1;
+        }
+        else
+        {
+            akkuBlinken = 0;
+            akkuanzeige_Led = OFF;
+        }
         //Ausgabe------------------------------------------------------------------
-         if (On)
-         {
-             powerLed = OUT_POWER_LED;
-             
-             if (ladenAnzeige_Blinken)
-             {
-                 if (timerBlink_ms >= ON_TIME)
-                 {
-                     ladenAnzeige_Led = OFF;
-                 }
-                 if (timerBlink_ms >= PERIOD)
-                 {
-                     ladenAnzeige_Led = IN_LADE_GERAET;
-                     timerBlink_ms = 0;
-                 }
-             }
-             else
-             {
-                 timerBlink_ms = PERIOD;
-             }
-             
-         }
-         else
-         {
-             powerLed = OFF;
-         }
+        if (On)
+        {
+            powerLed = OUT_POWER_LED;
+            
+            if (ladenAnzeige_Blinken)
+            {
+                if (timerBlink_laden_ms >= ON_TIME_LADEN)
+                {
+                    ladenAnzeige_Led = OFF;
+                }
+                if (timerBlink_laden_ms >= PERIOD_LADEN)
+                {
+                    ladenAnzeige_Led = IN_LADE_GERAET;
+                    timerBlink_laden_ms = 0;
+                }
+            }
+            else
+            {
+                timerBlink_laden_ms = PERIOD_LADEN;
+            }
+            if (inSpannungsmessung == 3)
+            {
+                powerLed = OUT_POWER_LED;
+            }
+            else
+            {
+                if (selberLaden_blinken)
+                {
+                    if (timerBlink_selber_ms >= ON_TIME_SELBER)
+                    {
+                        powerLed = OFF;
+                    }
+                    if (timerBlink_selber_ms >= PERIOD_SELBER)
+                    {
+                        powerLed = OUT_POWER_LED;
+                        timerBlink_selber_ms = 0;
+                    }
+                }
+                else
+                {
+                    timerBlink_selber_ms = PERIOD_SELBER;
+                }
+            }
+            //Einzeiler
+            akkuanzeige_Led =  (OUT_SPANNUG_3>>(MAX_SPANNUG-inSpannungsmessung)) &
+            OUT_SPANNUG_3;
+            if (inSpannungsmessung == 0)
+            {
+                
+                if (akkuBlinken)
+                {
+                    if (timerBlink_akku_ms >= ON_AKKU)
+                    {
+                        lcdLog("ok");
+                        akkuanzeige_Led = OFF;
+                    }
+                    if (timerBlink_akku_ms >= PERIOD_AKKU)
+                    {
+                        lcdLog("off");
+                        akkuanzeige_Led = OUT_AKKU_LED;
+                        timerBlink_akku_ms = 0;
+                    }
+                }
+                else
+                {
+                    timerBlink_akku_ms = PERIOD_AKKU;
+                }
+            }
+            
+        }
+        else
+        {
+            ladenAnzeige_Led = OFF;
+            if (inSpannungsmessung == 3)
+            {
+                powerLed = OUT_POWER_LED;
+            }
+            if (selberLaden_blinken)
+            {
+                if (timerBlink_selber_ms >= ON_TIME_SELBER)
+                {
+                    powerLed = OFF;
+                }
+                if (timerBlink_selber_ms >= PERIOD_SELBER)
+                {
+                    powerLed = OUT_POWER_LED;
+                    timerBlink_selber_ms = 0;
+                }
+            }
+            else
+            {
+                timerBlink_selber_ms = PERIOD_SELBER;
+            }
+        }
         
         
         
-        ledWriteAll(powerLed | ladenAnzeige_Led);
         
-     //Warten-------------------------------------------------------------------
-     _delay_ms(SYSTEM_TICK_MS);
-     timerBlink_ms = timerBlink_ms + SYSTEM_TICK_MS;
-     
+        ledWriteAll(powerLed | ladenAnzeige_Led | akkuanzeige_Led);
+        
+        //Warten-------------------------------------------------------------------
+        _delay_ms(SYSTEM_TICK_MS);
+        timerBlink_laden_ms = timerBlink_laden_ms + SYSTEM_TICK_MS;
+        timerBlink_selber_ms = timerBlink_selber_ms + SYSTEM_TICK_MS;
+        timerBlink_akku_ms = timerBlink_akku_ms + SYSTEM_TICK_MS;
     }
 }
 
