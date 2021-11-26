@@ -144,7 +144,7 @@ int main(void)
             {
                 powerLed = OUT_POWER_LED;
             }
-          
+            
             //Einzeiler      wo die LED angezeigt wärden (0b11100000) / welcher Schalter (0b11000000)
             akkuanzeige_Led =  (OUT_SPANNUG_LED_ANZEIGE>>(MAX_SPANNUG-inSpannungsmessung_schalter)) &      // mit dem schalter kann man auf LED binär zählen
             OUT_SPANNUG_LED_ANZEIGE;
