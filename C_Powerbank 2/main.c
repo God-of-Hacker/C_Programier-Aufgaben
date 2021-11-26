@@ -34,31 +34,31 @@
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
 
-#define     ON_OFF_SCHALTER         (1<<0)
-#define     IN_SELBER_LADE_GERAET      (1<<1)
-#define     IN_LADE_GERAET             (1<<2)
+#define     ON_OFF_SCHALTER            (1<<0)
+#define     IN_SELBER_LADE_GERAET      (1<<2)
+#define     IN_LADE_GERAET             (1<<3)
 #define     IN_SPANNUNGSMESSUNG        0b11000000
 #define     IN_OFFSET_SPANNUNG         6
 
 #define     OFF                          0
 #define     OUT_POWER_LED             0x01
 #define     OUT_LADE_ANZEIGE_LED      0x02
-#define     MAX_SPANNUG                 3
+#define     MAX_SPANNUG                 3 // 3 LED gross
 #define     OUT_SPANNUG_LED_ANZEIGE    0b11100000
 #define     OUT_AKKU_LED             (1<<5)
 
-#define SYSTEM_TICK_MS             10
-#define ON_TIME_LADEN             250
-#define OFF_TIME_LADEN            250
-#define PERIOD_LADEN              (ON_TIME_LADEN+OFF_TIME_LADEN)
+#define     SYSTEM_TICK_MS             10
+#define     ON_TIME_LADEN             250
+#define     OFF_TIME_LADEN            250
+#define     PERIOD_LADEN              (ON_TIME_LADEN+OFF_TIME_LADEN)
 
-#define ON_TIME_SELBER             100
-#define OFF_TIME_SELBER            400
-#define PERIOD_SELBER              (ON_TIME_SELBER+OFF_TIME_SELBER)
+#define     ON_TIME_SELBER             100
+#define     OFF_TIME_SELBER            400
+#define     PERIOD_SELBER              (ON_TIME_SELBER+OFF_TIME_SELBER)
 
-#define ON_AKKU                    200
-#define OFF_AKKU                   800
-#define PERIOD_AKKU              (ON_AKKU+OFF_AKKU)
+#define     ON_AKKU                    200
+#define     OFF_AKKU                   800
+#define     PERIOD_AKKU              (ON_AKKU+OFF_AKKU)
 //Hauptprogramm
 int main(void)
 {
@@ -143,6 +143,7 @@ int main(void)
             if (inSpannungsmessung_schalter == 3)
             {
                 powerLed = OUT_POWER_LED;
+                selberLaden_blinken = 0;
             }
             
             //Einzeiler      wo die LED angezeigt wärden (0b11100000) / welcher Schalter (0b11000000)
@@ -175,15 +176,18 @@ int main(void)
         else
         {
             ladenAnzeige_Led = OFF;
-            if (inSpannungsmessung_schalter == 3)
-            {
-                powerLed = OUT_POWER_LED;
-            }
+            
             
         }
-        
+        if ((inSpannungsmessung_schalter == 3) && (selberLaden_blinken))
+        {
+            powerLed = OUT_POWER_LED;
+            selberLaden_blinken = 0;
+        }
         if (selberLaden_blinken )
         {
+            
+            
             if (timerBlink_selber_ms >= ON_TIME_SELBER)
             {
                 powerLed = OFF;
@@ -192,12 +196,14 @@ int main(void)
             {
                 powerLed = OUT_POWER_LED;
                 timerBlink_selber_ms = 0;
+                
             }
         }
         else
         {
             timerBlink_selber_ms = PERIOD_SELBER;
         }
+        
         
         
         ledWriteAll(powerLed | ladenAnzeige_Led | akkuanzeige_Led);
@@ -209,4 +215,5 @@ int main(void)
         timerBlink_akku_ms = timerBlink_akku_ms + SYSTEM_TICK_MS;
     }
 }
+
 
