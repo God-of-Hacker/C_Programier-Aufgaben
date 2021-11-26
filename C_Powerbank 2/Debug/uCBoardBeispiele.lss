@@ -15,19 +15,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   5 .debug_aranges 000001e8  00000000  00000000  000012c0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00002594  00000000  00000000  000014a8  2**0
+  6 .debug_info   00002588  00000000  00000000  000014a8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00001014  00000000  00000000  00003a3c  2**0
+  7 .debug_abbrev 00001005  00000000  00000000  00003a30  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000015c4  00000000  00000000  00004a50  2**0
+  8 .debug_line   000015c4  00000000  00000000  00004a35  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000688  00000000  00000000  00006014  2**2
+  9 .debug_frame  00000688  00000000  00000000  00005ffc  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000d8d  00000000  00000000  0000669c  2**0
+ 10 .debug_str    00000d87  00000000  00000000  00006684  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000022ae  00000000  00000000  00007429  2**0
+ 11 .debug_loc    000022ae  00000000  00000000  0000740b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000218  00000000  00000000  000096d7  2**0
+ 12 .debug_ranges 00000218  00000000  00000000  000096b9  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -217,8 +217,8 @@ int main(void)
     initBoard(1);
      138:	81 e0       	ldi	r24, 0x01	; 1
      13a:	21 d3       	rcall	.+1602   	; 0x77e <initBoard>
+    uint16_t ladenAnzeige_Led = 0;
     uint16_t akkuanzeige_Led = 0;
-    uint16_t outSpannungLed = 0;
     uint64_t timerBlink_laden_ms = 0;
     uint64_t timerBlink_selber_ms = 0;
     uint64_t akkuBlinken = 0;
@@ -231,10 +231,10 @@ int main(void)
      146:	1e 86       	std	Y+14, r1	; 0x0e
      148:	1f 86       	std	Y+15, r1	; 0x0f
      14a:	18 8a       	std	Y+16, r1	; 0x10
+    uint16_t ladenAnzeige_Blinken = 0;
     uint16_t selberLaden_blinken = 0;
     uint16_t ladenAnzeige_Led = 0;
     uint16_t akkuanzeige_Led = 0;
-    uint16_t outSpannungLed = 0;
     uint64_t timerBlink_laden_ms = 0;
     uint64_t timerBlink_selber_ms = 0;
      14c:	b1 2c       	mov	r11, r1
@@ -244,11 +244,11 @@ int main(void)
      154:	f1 2c       	mov	r15, r1
      156:	91 2c       	mov	r9, r1
      158:	a1 2c       	mov	r10, r1
+    uint16_t powerLed = 0;
     uint16_t ladenAnzeige_Blinken = 0;
     uint16_t selberLaden_blinken = 0;
     uint16_t ladenAnzeige_Led = 0;
     uint16_t akkuanzeige_Led = 0;
-    uint16_t outSpannungLed = 0;
     uint64_t timerBlink_laden_ms = 0;
      15a:	19 82       	std	Y+1, r1	; 0x01
      15c:	1a 82       	std	Y+2, r1	; 0x02
@@ -275,7 +275,7 @@ int main(void)
      16e:	21 2c       	mov	r2, r1
      170:	31 2c       	mov	r3, r1
     //Variablen
-    uint8_t inSpannungsmessung = 0;
+    uint8_t inSpannungsmessung_schalter = 0;
     uint8_t On = 0;
     uint8_t geraet_Laden = 0;
     uint8_t selber_laden = 0;
@@ -294,10 +294,10 @@ int main(void)
     while(1)
     {
         //Eingabe------------------------------------------------------------------
-        inSpannungsmessung = switchReadAll() & IN_SPANNUNGSMESSUNG;
+        inSpannungsmessung_schalter = switchReadAll() & IN_SPANNUNGSMESSUNG;
      178:	81 2c       	mov	r8, r1
      17a:	a6 d1       	rcall	.+844    	; 0x4c8 <switchReadAll>
-        inSpannungsmessung = inSpannungsmessung >> IN_OFFSET_SPANNUNG;
+        inSpannungsmessung_schalter = inSpannungsmessung_schalter >> IN_OFFSET_SPANNUNG;
      17c:	82 95       	swap	r24
      17e:	86 95       	lsr	r24
      180:	86 95       	lsr	r24
@@ -378,7 +378,7 @@ int main(void)
             selberLaden_blinken = 0;
             powerLed = OFF;
         }
-        if (inSpannungsmessung == 0)
+        if (inSpannungsmessung_schalter == 0)
      1ba:	ac 89       	ldd	r26, Y+20	; 0x14
      1bc:	aa 23       	and	r26, r26
      1be:	09 f4       	brne	.+2      	; 0x1c2 <main+0x9e>
@@ -410,7 +410,7 @@ int main(void)
             selberLaden_blinken = 0;
             powerLed = OFF;
         }
-        if (inSpannungsmessung == 0)
+        if (inSpannungsmessung_schalter == 0)
         {
             akkuBlinken = 1;
      1da:	11 e0       	ldi	r17, 0x01	; 1
@@ -495,8 +495,8 @@ int main(void)
                 powerLed = OUT_POWER_LED;
             }
           
-            //Einzeiler
-            akkuanzeige_Led =  (OUT_SPANNUG_3>>(MAX_SPANNUG-inSpannungsmessung)) &      // mit dem schalter kann man auf LED binär zählen
+            //Einzeiler      wo die LED angezeigt wärden (0b11100000) / welcher Schalter (0b11000000)
+            akkuanzeige_Led =  (OUT_SPANNUG_LED_ANZEIGE>>(MAX_SPANNUG-inSpannungsmessung_schalter)) &      // mit dem schalter kann man auf LED binär zählen
      250:	83 e0       	ldi	r24, 0x03	; 3
      252:	90 e0       	ldi	r25, 0x00	; 0
      254:	1c 89       	ldd	r17, Y+20	; 0x14
@@ -515,8 +515,8 @@ int main(void)
      26e:	20 ee       	ldi	r18, 0xE0	; 224
      270:	62 22       	and	r6, r18
      272:	77 24       	eor	r7, r7
-            OUT_SPANNUG_3;
-            if (inSpannungsmessung == 0)
+            OUT_SPANNUG_LED_ANZEIGE;
+            if (inSpannungsmessung_schalter == 0)
      274:	11 11       	cpse	r17, r1
      276:	4b c0       	rjmp	.+150    	; 0x30e <main+0x1ea>
             {
@@ -599,7 +599,7 @@ int main(void)
                         akkuanzeige_Led = OUT_AKKU_LED;
      2ec:	68 94       	set
      2ee:	66 24       	eor	r6, r6
-     2f0:	64 f8       	bld	r6, 4
+     2f0:	65 f8       	bld	r6, 5
      2f2:	71 2c       	mov	r7, r1
                     if (timerBlink_akku_ms >= ON_AKKU)
                     {
@@ -615,7 +615,7 @@ int main(void)
         else
         {
             ladenAnzeige_Led = OFF;
-            if (inSpannungsmessung == 3)
+            if (inSpannungsmessung_schalter == 3)
      2fa:	2c 89       	ldd	r18, Y+20	; 0x14
      2fc:	23 30       	cpi	r18, 0x03	; 3
      2fe:	d1 f4       	brne	.+52     	; 0x334 <main+0x210>
@@ -635,7 +635,7 @@ int main(void)
             ladenAnzeige_Led = OFF;
      304:	21 2c       	mov	r2, r1
      306:	35 2c       	mov	r3, r5
-            if (inSpannungsmessung == 3)
+            if (inSpannungsmessung_schalter == 3)
             {
                 powerLed = OUT_POWER_LED;
      308:	01 e0       	ldi	r16, 0x01	; 1
@@ -870,8 +870,8 @@ int main(void)
                 powerLed = OUT_POWER_LED;
             }
           
-            //Einzeiler
-            akkuanzeige_Led =  (OUT_SPANNUG_3>>(MAX_SPANNUG-inSpannungsmessung)) &      // mit dem schalter kann man auf LED binär zählen
+            //Einzeiler      wo die LED angezeigt wärden (0b11100000) / welcher Schalter (0b11000000)
+            akkuanzeige_Led =  (OUT_SPANNUG_LED_ANZEIGE>>(MAX_SPANNUG-inSpannungsmessung_schalter)) &      // mit dem schalter kann man auf LED binär zählen
      43c:	90 e0       	ldi	r25, 0x00	; 0
      43e:	1c 89       	ldd	r17, Y+20	; 0x14
      440:	81 1b       	sub	r24, r17
@@ -910,8 +910,8 @@ int main(void)
                 powerLed = OUT_POWER_LED;
             }
           
-            //Einzeiler
-            akkuanzeige_Led =  (OUT_SPANNUG_3>>(MAX_SPANNUG-inSpannungsmessung)) &      // mit dem schalter kann man auf LED binär zählen
+            //Einzeiler      wo die LED angezeigt wärden (0b11100000) / welcher Schalter (0b11000000)
+            akkuanzeige_Led =  (OUT_SPANNUG_LED_ANZEIGE>>(MAX_SPANNUG-inSpannungsmessung_schalter)) &      // mit dem schalter kann man auf LED binär zählen
      474:	10 e0       	ldi	r17, 0x00	; 0
      476:	62 cf       	rjmp	.-316    	; 0x33c <main+0x218>
      478:	23 2b       	or	r18, r19
@@ -929,8 +929,8 @@ int main(void)
                 powerLed = OUT_POWER_LED;
             }
           
-            //Einzeiler
-            akkuanzeige_Led =  (OUT_SPANNUG_3>>(MAX_SPANNUG-inSpannungsmessung)) &      // mit dem schalter kann man auf LED binär zählen
+            //Einzeiler      wo die LED angezeigt wärden (0b11100000) / welcher Schalter (0b11000000)
+            akkuanzeige_Led =  (OUT_SPANNUG_LED_ANZEIGE>>(MAX_SPANNUG-inSpannungsmessung_schalter)) &      // mit dem schalter kann man auf LED binär zählen
      482:	90 e0       	ldi	r25, 0x00	; 0
      484:	1c 89       	ldd	r17, Y+20	; 0x14
      486:	81 1b       	sub	r24, r17

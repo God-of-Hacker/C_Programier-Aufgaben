@@ -44,8 +44,8 @@
 #define     OUT_POWER_LED             0x01
 #define     OUT_LADE_ANZEIGE_LED      0x02
 #define     MAX_SPANNUG                 3
-#define     OUT_SPANNUG_3            0b11100000
-#define     OUT_AKKU_LED             (1<<4)
+#define     OUT_SPANNUG_LED_ANZEIGE    0b11100000
+#define     OUT_AKKU_LED             (1<<5)
 
 #define SYSTEM_TICK_MS             10
 #define ON_TIME_LADEN             250
@@ -63,7 +63,7 @@
 int main(void)
 {
     //Variablen
-    uint8_t inSpannungsmessung = 0;
+    uint8_t inSpannungsmessung_schalter = 0;
     uint8_t On = 0;
     uint8_t geraet_Laden = 0;
     uint8_t selber_laden = 0;
@@ -72,7 +72,6 @@ int main(void)
     uint16_t selberLaden_blinken = 0;
     uint16_t ladenAnzeige_Led = 0;
     uint16_t akkuanzeige_Led = 0;
-    uint16_t outSpannungLed = 0;
     uint64_t timerBlink_laden_ms = 0;
     uint64_t timerBlink_selber_ms = 0;
     uint64_t akkuBlinken = 0;
@@ -85,8 +84,8 @@ int main(void)
     while(1)
     {
         //Eingabe------------------------------------------------------------------
-        inSpannungsmessung = switchReadAll() & IN_SPANNUNGSMESSUNG;
-        inSpannungsmessung = inSpannungsmessung >> IN_OFFSET_SPANNUNG;
+        inSpannungsmessung_schalter = switchReadAll() & IN_SPANNUNGSMESSUNG;
+        inSpannungsmessung_schalter = inSpannungsmessung_schalter >> IN_OFFSET_SPANNUNG;
         geraet_Laden = switchReadAll() & IN_LADE_GERAET;
         selber_laden = switchReadAll() & IN_SELBER_LADE_GERAET;
         On = switchReadAll() & ON_OFF_SCHALTER;
@@ -111,7 +110,7 @@ int main(void)
             selberLaden_blinken = 0;
             powerLed = OFF;
         }
-        if (inSpannungsmessung == 0)
+        if (inSpannungsmessung_schalter == 0)
         {
             akkuBlinken = 1;
         }
@@ -141,15 +140,15 @@ int main(void)
             {
                 timerBlink_laden_ms = PERIOD_LADEN;
             }
-            if (inSpannungsmessung == 3)
+            if (inSpannungsmessung_schalter == 3)
             {
                 powerLed = OUT_POWER_LED;
             }
           
-            //Einzeiler
-            akkuanzeige_Led =  (OUT_SPANNUG_3>>(MAX_SPANNUG-inSpannungsmessung)) &      // mit dem schalter kann man auf LED binär zählen
-            OUT_SPANNUG_3;
-            if (inSpannungsmessung == 0)
+            //Einzeiler      wo die LED angezeigt wärden (0b11100000) / welcher Schalter (0b11000000)
+            akkuanzeige_Led =  (OUT_SPANNUG_LED_ANZEIGE>>(MAX_SPANNUG-inSpannungsmessung_schalter)) &      // mit dem schalter kann man auf LED binär zählen
+            OUT_SPANNUG_LED_ANZEIGE;
+            if (inSpannungsmessung_schalter == 0)
             {
                 
                 if (akkuBlinken)
@@ -176,7 +175,7 @@ int main(void)
         else
         {
             ladenAnzeige_Led = OFF;
-            if (inSpannungsmessung == 3)
+            if (inSpannungsmessung_schalter == 3)
             {
                 powerLed = OUT_POWER_LED;
             }
