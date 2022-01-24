@@ -64,7 +64,7 @@ int main(void)
         lcdWriteText(2,0,"mv: %4d" inHall1_mv);  
         lcdWriteText(2,10,"%4d" inHall2_mv); 
         lcdWriteText(3,0,"Gauss: %4d" outgausshall1 );
-        lcdWriteText(3,0,"Gauss: %4d" outgausshall2 );
+        lcdWriteText(3,10,"%4d" outgausshall2 );
     }
 }
 
