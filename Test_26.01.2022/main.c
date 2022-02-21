@@ -58,6 +58,7 @@
 
 #define PERIODE_PREAZISIONSMODUS_MS      200 
 #define EIN_ZEIT_PREAZISIONSMODUS_MS     160
+#pragma GCC optimize 0                                // Optimierung ausschalten, damit das Debugging möglich ist
 //Hauptprogramm
 int main(void)
 {
@@ -117,6 +118,7 @@ int main(void)
             {
                 blinkenSchnellfeuerAktiviert = 1;
                 outBeleuchtungScrollradLED = OFF;
+               // blinkenPreazisionsmodunsAktiviert = 0;  >>>> mein änderung 
             } 
             else
             {

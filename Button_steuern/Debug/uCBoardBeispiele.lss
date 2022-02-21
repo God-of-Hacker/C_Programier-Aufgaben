@@ -23,11 +23,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000678  00000000  00000000  00005a9c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000d13  00000000  00000000  00006114  2**0
+ 10 .debug_str    00000d81  00000000  00000000  00006114  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00001b0f  00000000  00000000  00006e27  2**0
+ 11 .debug_loc    00001b0f  00000000  00000000  00006e95  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000218  00000000  00000000  00008936  2**0
+ 12 .debug_ranges 00000218  00000000  00000000  000089a4  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -228,7 +228,7 @@ int main(void)
  134:	f1 2c       	mov	r15, r1
         Positiv_flanke = flanken & button_neu;      //0000 0011
         negative_flanke = flanken & button_alt;     //1000 0000
-        posFlankePWr = Positiv_flanke & 0x01;         //
+        posFlankePWr = Positiv_flanke & 0x01;       // mit dem kann ich Button bestimmen PL0,PL1,PL6,PL7
         negFlankePWr = negative_flanke & 0x01;
         //Verarbeitung-------------------------------------------------------------
           if (posFlankePWr)
@@ -276,12 +276,6 @@ int main(void)
  164:	e5 cf       	rjmp	.-54     	; 0x130 <main+0xc>
 
 00000166 <ledWriteAll>:
-            }
-        }
-        matrix_buffer_pos += breite + Zeichenabstand;           // Position für das nächste Zeichen berechnen
-        str_p++;                                                // Zeichen-Zeiger auf das nächste Zeichen richten
-    }
-}
  166:	82 b9       	out	0x02, r24	; 2
  168:	95 b9       	out	0x05, r25	; 5
  16a:	08 95       	ret
@@ -894,12 +888,6 @@ int main(void)
  638:	08 95       	ret
 
 0000063a <matrixWriteNextLine>:
-
-
-
-
-void matrixWriteNextLine(void)
-{
  63a:	cf 93       	push	r28
  63c:	df 93       	push	r29
  63e:	cd b7       	in	r28, 0x3d	; 61
@@ -910,7 +898,6 @@ void matrixWriteNextLine(void)
  648:	de bf       	out	0x3e, r29	; 62
  64a:	0f be       	out	0x3f, r0	; 63
  64c:	cd bf       	out	0x3d, r28	; 61
-    const  uint8_t Bit_Muster_Tab[8] = {1,2,4,8,16,32,64,128};
  64e:	88 e0       	ldi	r24, 0x08	; 8
  650:	e0 e0       	ldi	r30, 0x00	; 0
  652:	f2 e0       	ldi	r31, 0x02	; 2
@@ -920,17 +907,11 @@ void matrixWriteNextLine(void)
  65a:	0d 92       	st	X+, r0
  65c:	8a 95       	dec	r24
  65e:	e1 f7       	brne	.-8      	; 0x658 <matrixWriteNextLine+0x1e>
-    static uint16_t Zeilen_Nr, Bit_Muster;
-    uint8_t i;
-    
-    STROBE_0;                             // Daten des Scheiberegisters nicht ins Latch schreiben
  660:	e5 e0       	ldi	r30, 0x05	; 5
  662:	f1 e0       	ldi	r31, 0x01	; 1
  664:	80 81       	ld	r24, Z
  666:	8f 7b       	andi	r24, 0xBF	; 191
  668:	80 83       	st	Z, r24
-
-    Bit_Muster = Bit_Muster_Tab[Zeilen_Nr]; // Bitmuster aus Tabelle holen, um mit Daten in matrix[] zu vergleichen.
  66a:	e0 91 76 02 	lds	r30, 0x0276	; 0x800276 <Zeilen_Nr.2731>
  66e:	f0 91 77 02 	lds	r31, 0x0277	; 0x800277 <Zeilen_Nr.2731+0x1>
  672:	81 e0       	ldi	r24, 0x01	; 1
@@ -947,20 +928,8 @@ void matrixWriteNextLine(void)
  68c:	b2 e0       	ldi	r27, 0x02	; 2
  68e:	22 e8       	ldi	r18, 0x82	; 130
  690:	32 e0       	ldi	r19, 0x02	; 2
-    {                                       // Vergleicht Bit-Muster der aktuellen Zeile mit Daten in matrix[]
-        if((matrix[Anzahl_Spalten-1- i] & Bit_Muster) != 0)     // Ist in matrix[] das entsprechende Bit gesetzt?
-        { DATA_Modul_1_ON;                    //   JA:   ==> Datenbit "1" ins Schieberegister schreiben
-        }
-        else
-        { DATA_Modul_1_OFF;                   //   NEIN: ==> Datenbit "0" ins Schieberegister schreiben
  692:	e5 e0       	ldi	r30, 0x05	; 5
  694:	f1 e0       	ldi	r31, 0x01	; 1
-    Bit_Muster = Bit_Muster_Tab[Zeilen_Nr]; // Bitmuster aus Tabelle holen, um mit Daten in matrix[] zu vergleichen.
-    
-    // Alle Bits seriell ins Schieberegister hineinschreiben
-    for(i=0; i<Anzahl_Spalten; i++)         // Alle Spalten durchgehen und überpüfen, ob Bit gesetzt ist
-    {                                       // Vergleicht Bit-Muster der aktuellen Zeile mit Daten in matrix[]
-        if((matrix[Anzahl_Spalten-1- i] & Bit_Muster) != 0)     // Ist in matrix[] das entsprechende Bit gesetzt?
  696:	5e 91       	ld	r21, -X
  698:	4e 91       	ld	r20, -X
  69a:	80 91 74 02 	lds	r24, 0x0274	; 0x800274 <__data_end>
@@ -969,88 +938,53 @@ void matrixWriteNextLine(void)
  6a4:	95 23       	and	r25, r21
  6a6:	89 2b       	or	r24, r25
  6a8:	21 f0       	breq	.+8      	; 0x6b2 <matrixWriteNextLine+0x78>
-        { DATA_Modul_1_ON;                    //   JA:   ==> Datenbit "1" ins Schieberegister schreiben
  6aa:	80 81       	ld	r24, Z
  6ac:	80 62       	ori	r24, 0x20	; 32
  6ae:	80 83       	st	Z, r24
  6b0:	03 c0       	rjmp	.+6      	; 0x6b8 <matrixWriteNextLine+0x7e>
-        }
-        else
-        { DATA_Modul_1_OFF;                   //   NEIN: ==> Datenbit "0" ins Schieberegister schreiben
  6b2:	80 81       	ld	r24, Z
  6b4:	8f 7d       	andi	r24, 0xDF	; 223
  6b6:	80 83       	st	Z, r24
-        }
-        CLOCK_1;
  6b8:	80 81       	ld	r24, Z
  6ba:	80 61       	ori	r24, 0x10	; 16
  6bc:	80 83       	st	Z, r24
-        CLOCK_0;                            // Datenbit wird bei der negativen Flanke des Clock-Signals übernommen
  6be:	80 81       	ld	r24, Z
  6c0:	8f 7e       	andi	r24, 0xEF	; 239
  6c2:	80 83       	st	Z, r24
-    STROBE_0;                             // Daten des Scheiberegisters nicht ins Latch schreiben
-
-    Bit_Muster = Bit_Muster_Tab[Zeilen_Nr]; // Bitmuster aus Tabelle holen, um mit Daten in matrix[] zu vergleichen.
-    
-    // Alle Bits seriell ins Schieberegister hineinschreiben
-    for(i=0; i<Anzahl_Spalten; i++)         // Alle Spalten durchgehen und überpüfen, ob Bit gesetzt ist
  6c4:	a2 17       	cp	r26, r18
  6c6:	b3 07       	cpc	r27, r19
  6c8:	31 f7       	brne	.-52     	; 0x696 <matrixWriteNextLine+0x5c>
-        }
-        CLOCK_1;
-        CLOCK_0;                            // Datenbit wird bei der negativen Flanke des Clock-Signals übernommen
-    }
-    
-    ENABLE_0;                                // +5V aller Zeilen abschalten
  6ca:	e5 e0       	ldi	r30, 0x05	; 5
  6cc:	f1 e0       	ldi	r31, 0x01	; 1
  6ce:	80 81       	ld	r24, Z
  6d0:	87 7f       	andi	r24, 0xF7	; 247
  6d2:	80 83       	st	Z, r24
-    PORTJ &= ~0x07;
  6d4:	80 81       	ld	r24, Z
  6d6:	88 7f       	andi	r24, 0xF8	; 248
  6d8:	80 83       	st	Z, r24
-    PORTJ |= Zeilen_Nr;                     // gewünschte Zeile einstellen
  6da:	90 81       	ld	r25, Z
  6dc:	80 91 76 02 	lds	r24, 0x0276	; 0x800276 <Zeilen_Nr.2731>
  6e0:	89 2b       	or	r24, r25
  6e2:	80 83       	st	Z, r24
-    STROBE_1;                             // Daten ins Latch schreiben
  6e4:	80 81       	ld	r24, Z
  6e6:	80 64       	ori	r24, 0x40	; 64
  6e8:	80 83       	st	Z, r24
-    ENABLE_1;                             // +5V Speisung der eingestellten Zeile einschalten
  6ea:	80 81       	ld	r24, Z
  6ec:	88 60       	ori	r24, 0x08	; 8
  6ee:	80 83       	st	Z, r24
-
-    // Die Zeilen werden nacheinander eingeschaltet --> zyklisch 0,1,2,3,4,5,6,7, 0,1,2,3, ...
-    if (Zeilen_Nr < 7)
  6f0:	80 91 76 02 	lds	r24, 0x0276	; 0x800276 <Zeilen_Nr.2731>
  6f4:	90 91 77 02 	lds	r25, 0x0277	; 0x800277 <Zeilen_Nr.2731+0x1>
  6f8:	87 30       	cpi	r24, 0x07	; 7
  6fa:	91 05       	cpc	r25, r1
  6fc:	30 f4       	brcc	.+12     	; 0x70a <matrixWriteNextLine+0xd0>
-    {
-        Zeilen_Nr++;
  6fe:	01 96       	adiw	r24, 0x01	; 1
  700:	90 93 77 02 	sts	0x0277, r25	; 0x800277 <Zeilen_Nr.2731+0x1>
  704:	80 93 76 02 	sts	0x0276, r24	; 0x800276 <Zeilen_Nr.2731>
  708:	07 c0       	rjmp	.+14     	; 0x718 <matrixWriteNextLine+0xde>
-    }
-    else
-    {
-        Zeilen_Nr = 0;
  70a:	10 92 77 02 	sts	0x0277, r1	; 0x800277 <Zeilen_Nr.2731+0x1>
  70e:	10 92 76 02 	sts	0x0276, r1	; 0x800276 <Zeilen_Nr.2731>
-        writeTextFinished = 1;
  712:	81 e0       	ldi	r24, 0x01	; 1
  714:	80 93 78 02 	sts	0x0278, r24	; 0x800278 <writeTextFinished>
-    }
-    
  718:	28 96       	adiw	r28, 0x08	; 8
  71a:	0f b6       	in	r0, 0x3f	; 63
  71c:	f8 94       	cli
@@ -1062,12 +996,6 @@ void matrixWriteNextLine(void)
  728:	08 95       	ret
 
 0000072a <__vector_23>:
-//--------------------------------------------------------------------------------------------
-// Timer 0 Overflow Interrupt ->  Wird alle 1ms aufgerufen
-//--------------------------------------------------------------------------------------------
-
-ISR(TIMER0_OVF_vect)
-{
  72a:	1f 92       	push	r1
  72c:	0f 92       	push	r0
  72e:	0f b6       	in	r0, 0x3f	; 63
@@ -1087,7 +1015,6 @@ ISR(TIMER0_OVF_vect)
  74a:	bf 93       	push	r27
  74c:	ef 93       	push	r30
  74e:	ff 93       	push	r31
-    systemTimeMs += 1;
  750:	20 91 79 02 	lds	r18, 0x0279	; 0x800279 <systemTimeMs>
  754:	30 91 7a 02 	lds	r19, 0x027A	; 0x80027a <systemTimeMs+0x1>
  758:	40 91 7b 02 	lds	r20, 0x027B	; 0x80027b <systemTimeMs+0x2>
@@ -1106,12 +1033,9 @@ ISR(TIMER0_OVF_vect)
  788:	70 93 7e 02 	sts	0x027E, r23	; 0x80027e <systemTimeMs+0x5>
  78c:	80 93 7f 02 	sts	0x027F, r24	; 0x80027f <systemTimeMs+0x6>
  790:	90 93 80 02 	sts	0x0280, r25	; 0x800280 <systemTimeMs+0x7>
-
-    if(matrixRunning)matrixWriteNextLine();
  794:	80 91 81 02 	lds	r24, 0x0281	; 0x800281 <matrixRunning>
  798:	81 11       	cpse	r24, r1
  79a:	4f df       	rcall	.-354    	; 0x63a <matrixWriteNextLine>
-}
  79c:	ff 91       	pop	r31
  79e:	ef 91       	pop	r30
  7a0:	bf 91       	pop	r27
