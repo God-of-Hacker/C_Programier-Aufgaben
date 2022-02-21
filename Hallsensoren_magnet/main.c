@@ -46,6 +46,9 @@ int main(void)
     int16_t outgausshall2 = 0;
     int16_t uT1 = 0;
     int16_t uT2 = 0;
+    uint16_t ledshall1 = 0;
+    uint16_t ledshall2 = 0;
+    
     //Initialisieren
     initBoard(1);
     
@@ -63,6 +66,10 @@ int main(void)
         outgausshall2 = (inHall2_mv - 2500) *10/15;
         uT1 = outgausshall1 * 100;
         uT2 = outgausshall2 * 100;
+        
+        ledshall1 = (0b11111110>>(7-outgausshall1)) &      // mit dem schalter kann man auf LED binär zählen
+        0b11111110;
+        
         //Ausgabe------------------------------------------------------------------   //Zeile von rechts nach links ,spalte von oben nach unten
         lcdWriteText(0,0,"ADC: %4d",inAdcHall1);  
         lcdWriteText(0,12,"%4d",inAdcHall2);
@@ -72,7 +79,7 @@ int main(void)
         lcdWriteText(2,12,"%4d",outgausshall2 );
         lcdWriteText(3,0,"uT: %6d",uT1 );
         lcdWriteText(3,12,"%6d",uT2 );
-        
+        ledRead(ledshall1 | ledshall2);
     }
 }
 
