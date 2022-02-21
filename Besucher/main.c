@@ -46,9 +46,15 @@ int main(void)
     uint16_t Positiv_flanke = 0;
     uint16_t flanken = 0;
     uint16_t negative_flanke = 0;
-    uint16_t leds = 0;
+    uint16_t Besucher = 0;
     uint16_t posFlankePWr = 0;
     uint16_t negFlankePWr = 0;
+    uint16_t posFlankePWr1 = 0;
+    uint16_t negFlankePWr1 = 0;
+    uint16_t posFlankePWr2 = 0;
+    uint16_t negFlankePWr2 = 0;
+    
+    
     //Initialisieren
     initBoard(1);
     
@@ -63,14 +69,26 @@ int main(void)
         negative_flanke = flanken & button_alt;     //1000 0000
         posFlankePWr = Positiv_flanke & 0x01;       // mit dem kann ich Button bestimmen PL0,PL1,PL6,PL7
         negFlankePWr = negative_flanke & 0x01;
+        posFlankePWr1 = Positiv_flanke & 0x02;       // mit dem kann ich Button bestimmen 01, 02, 04, 08
+        negFlankePWr1 = negative_flanke & 0x02;
+        posFlankePWr2 = Positiv_flanke & 0x08;       // mit dem kann ich Button bestimmen PL0,PL1,PL6,PL7
+        negFlankePWr2 = negative_flanke & 0x08;
+        
         //Verarbeitung-------------------------------------------------------------
           if (posFlankePWr)
           {
-              leds = ~leds;
+              Besucher = Besucher + 1;
           }
-          
+          if (posFlankePWr1)
+          {
+              Besucher = Besucher - 1;
+          }
+          if (posFlankePWr2)
+          {
+              Besucher = Besucher == 0;
+          }
         //Ausgabe------------------------------------------------------------------
-        ledWriteAll(leds);
+        lcdWriteText(1,0,"%u Besucher          ",Besucher);
     
         
         //Warten-------------------------------------------------------------------
