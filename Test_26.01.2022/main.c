@@ -3,7 +3,7 @@
 * MMMMMMMMMMMM   SSSSSSSSSSSS   WW   WW   WW   MECHATRONIK
 * MM   MM   MM   SS             WW   WW   WW   SCHULE
 * MM   MM   MM   SSSSSSSSSSSS   WW   WW   WW   WINTERTHUR
-* MM   MM   MM             SS   WW   WW   WW   
+* MM   MM   MM             SS   WW   WW   WW
 * MM   MM   MM   SSSSSSSSSSSS   WWWWWWWWWWWW   www.msw.ch
 *
 *
@@ -40,7 +40,7 @@
 #define IN_MASKE_PREAZISIONSMODUS_AKTIVIERT    0b00001000
 
 #define IN_MASKE_GESCHWINDIGKEIT               0b11100000
-#define OFFSET_GESCHWINDIGKEIT                 5 
+#define OFFSET_GESCHWINDIGKEIT                 5
 
 #define OFF                                    0
 #define OUT_MASKE_BELEUCHTUNG_LOGO_BLAU        0b00000001 //0
@@ -56,9 +56,9 @@
 #define PERIODE_AUS_SCHNELFEUER_MS            90
 #define PERIOD                  (PERIODE_EIN_SCHNELFEUER_MS+PERIODE_AUS_SCHNELFEUER_MS)
 
-#define PERIODE_PREAZISIONSMODUS_MS      200 
+#define PERIODE_PREAZISIONSMODUS_MS      200
 #define EIN_ZEIT_PREAZISIONSMODUS_MS     160
-#pragma GCC optimize 0                                // Optimierung ausschalten, damit das Debugging möglich ist
+//#pragma GCC optimize 0                                // Optimierung ausschalten, damit das Debugging möglich ist
 //Hauptprogramm
 int main(void)
 {
@@ -90,7 +90,7 @@ int main(void)
     {
         //Eingabe------------------------------------------------------------------
         StandbySchalter = switchReadAll() & IN_MASKE_COMPUTER_STANDBY;
-        SchnellfeuerSchalter = switchReadAll() & IN_MASKE_SCHNELFEUER_AKTIVIERT;  
+        SchnellfeuerSchalter = switchReadAll() & IN_MASKE_SCHNELFEUER_AKTIVIERT;
         Geschwindigkeitschalter = (switchReadAll() & IN_MASKE_GESCHWINDIGKEIT)>> OFFSET_GESCHWINDIGKEIT;
         bewegungSchalter = switchReadAll() & IN_MASKE_BEWEGUNG_ERKANNT;
         preazisionsmodunsSchalter = switchReadAll() & IN_MASKE_PREAZISIONSMODUS_AKTIVIERT;
@@ -100,15 +100,16 @@ int main(void)
             outBeleuchtungTastaturLED = OFF;
             outBeleuchtungScrollradLED = OFF;
             outBeleuchtungLogoblauLED = OFF;
-          if (bewegungSchalter)
-          {
-              outBeleuchtungLogorotLED = OUT_MASKE_BELEUCHTUNG_LOGO_ROT;
-          } 
-          else
-          { 
-              outBeleuchtungLogorotLED = OFF;
-          }
-        } 
+            
+            if (bewegungSchalter)
+            {
+                outBeleuchtungLogorotLED = OUT_MASKE_BELEUCHTUNG_LOGO_ROT;
+            }
+            else
+            {
+                outBeleuchtungLogorotLED = OFF;
+            }
+        }
         else
         {
             outBeleuchtungTastaturLED = OUT_MASKE_BELEUCHTUNG_TASTATUR;
@@ -118,26 +119,29 @@ int main(void)
             {
                 blinkenSchnellfeuerAktiviert = 1;
                 outBeleuchtungScrollradLED = OFF;
-               // blinkenPreazisionsmodunsAktiviert = 0;  >>>> mein änderung 
-            } 
+            }
             else
             {
                 blinkenSchnellfeuerAktiviert = 0;
                 outBeleuchtungScrollradLED = OUT_MASKE_BELEUCHTUNG_SCROLLRAD;
             }
             
-            outAnzeigeGeschwindigkeitLED = (OUT_MASKE_BALKEN_GESCHWINDIGKEIT>>(BALKENGROESSE_LEDS-Geschwindigkeitschalter))&OUT_MASKE_BALKEN_GESCHWINDIGKEIT;      
+            if (!blinkenPreazisionsmodunsAktiviert)
+            {
+              outAnzeigeGeschwindigkeitLED = (OUT_MASKE_BALKEN_GESCHWINDIGKEIT>>(BALKENGROESSE_LEDS-Geschwindigkeitschalter))&OUT_MASKE_BALKEN_GESCHWINDIGKEIT;  
+            }
+            
             
             if (preazisionsmodunsSchalter)
             {
                 blinkenPreazisionsmodunsAktiviert = 1;
-            } 
+            }
             else
             {
                 blinkenPreazisionsmodunsAktiviert = 0;
                 
             }
-           outBeleuchtungLogorotLED = OFF; 
+            outBeleuchtungLogorotLED = OFF;
         }
         
         
@@ -146,14 +150,14 @@ int main(void)
         {
             if (stoppuhrSchnellfeuer >= PERIODE_EIN_SCHNELFEUER_MS )
             {
-                outBeleuchtungScrollradLED = OFF;
+                outBeleuchtungScrollradLED = 0;
             }
             if (stoppuhrSchnellfeuer >= PERIOD)
             {
                 outBeleuchtungScrollradLED = OUT_MASKE_BELEUCHTUNG_SCROLLRAD;
                 stoppuhrSchnellfeuer = 0;
             }
-        } 
+        }
         else
         {
             stoppuhrSchnellfeuer = PERIOD;
@@ -173,7 +177,7 @@ int main(void)
         }
         else
         {
-            stoppuhrSchnellfeuer = PERIODE_PREAZISIONSMODUS_MS;
+            stoppuhrPreazisionsmoduns = PERIODE_PREAZISIONSMODUS_MS;
         }
         
         
@@ -185,4 +189,3 @@ int main(void)
         stoppuhrPreazisionsmoduns = stoppuhrPreazisionsmoduns + PROGRAMMTAKT_MS;
     }
 }
-
