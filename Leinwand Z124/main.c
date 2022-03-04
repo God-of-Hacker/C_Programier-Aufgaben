@@ -110,13 +110,13 @@ int main(void)
             outGruen= 1023;
             outBlau = 1023;
             //positive Flanke Taster Unten?
-            if (posFlankeUnten)                 //positive Flanke Stop?
+            if (posFlankeUnten)                
             {
                //Zustand auf Untenfahren setzen
                 state = UNTENFAHREN;
             }
             
-            break;//positive Flanke Sensor Oben?//positive Flanke Stop?//positive Flanke Sensor Unten?
+            break;
             
             case STOP:
             lcdLog("Stop");
@@ -129,8 +129,10 @@ int main(void)
                //Zustand auf Obenfahren setzen
                 state = OBENFAHREN;
             }
+            //positive Flanke Taster Unten?
             if (posFlankeUnten)
             {
+                //Zustand auf Untenfahren setzen
                 state = UNTENFAHREN;
             }
             break;
@@ -140,16 +142,22 @@ int main(void)
             outRot = 0;
             outGruen= 0;
             outBlau = 1023;
+            //positive Flanke Sensor Oben?
             if (schalterSensorOben)
             {
+                //Zustand auf Oben setzen
                 state = OBEN;
             }
+            //positive Flanke Taster Unten?
             if (posFlankeUnten)
             {
+                //Zustand auf Stop setzen
                 state = STOP;
             }
+            ////positive Flanke Stop?
              if (posFlankeStop)
              {
+                 //Zustand auf Stop setzen
                  state = STOP;
              }
             break;
@@ -159,16 +167,22 @@ int main(void)
             outRot = 0;
             outGruen= 1023;
             outBlau =0 ;
+            //positive Flanke Sensor Unten?
             if (schalterSensorUnten)
             {
+                //Zustand auf Unten setzen
                 state = UNTEN;
             }
+            //positive Flanke Taster Oben?
             if (posFlankeOben)
             {
+                //Zustand auf Stop setzen
                 state = STOP;
             }
+            //positive Flanke Stop?
             if (posFlankeStop)
             {
+                //Zustand auf Stop setzen
                 state = STOP;
             }
             break;
