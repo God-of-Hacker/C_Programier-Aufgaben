@@ -58,7 +58,8 @@
 #define ZAHL_7SEG_13 (SEGMENT_B | SEGMENT_C | SEGMENT_D | SEGMENT_E | SEGMENT_G)
 #define ZAHL_7SEG_14 (SEGMENT_A | SEGMENT_F | SEGMENT_E | SEGMENT_D | SEGMENT_G)
 #define ZAHL_7SEG_15 (SEGMENT_A | SEGMENT_F | SEGMENT_E | SEGMENT_G)
-
+#define OFF 0
+#define  OFFSET 4
 #define  SCHALTER_EINER  0b00001111
 #define  SCHALTER_ZEHNER 0b11110000
 
@@ -80,7 +81,7 @@ int main(void)
     while(1)
     {
         schalter = switchReadAll() & SCHALTER_EINER;
-        schalter2 = (switchReadAll() & SCHALTER_ZEHNER) >> 4;
+        schalter2 = (switchReadAll() & SCHALTER_ZEHNER) >> OFFSET;
         if ((schalter > 9) || (schalter2 > 9))
         { 
             PORTD = SEGMENT_DP;
@@ -91,7 +92,7 @@ int main(void)
            zahl = schalter + (10*schalter2);
            if (zahl > 15)
            {
-               PORTD = 0;
+               PORTD = OFF;
            }
            else
            {
