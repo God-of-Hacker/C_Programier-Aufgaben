@@ -3,7 +3,7 @@
 * MMMMMMMMMMMM   SSSSSSSSSSSS   WW   WW   WW   MECHATRONIK
 * MM   MM   MM   SS             WW   WW   WW   SCHULE
 * MM   MM   MM   SSSSSSSSSSSS   WW   WW   WW   WINTERTHUR
-* MM   MM   MM             SS   WW   WW   WW
+* MM   MM   MM             SS   WW   WW   WW   
 * MM   MM   MM   SSSSSSSSSSSS   WWWWWWWWWWWW   www.msw.ch
 *
 *
@@ -34,7 +34,7 @@
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
 
-#define ANZAHL  1000
+#define ANZAHL  256
 
 //Hauptprogramm
 int main(void)
@@ -42,9 +42,14 @@ int main(void)
     //Variablen
     
     //Speicherplatz für 255 Muster reservieren
-    uint8_t muster[ANZAHL];
+    uint16_t muster[ANZAHL];
     
-    
+    uint8_t adresse=0;
+    uint16_t ausgabe=0;
+    uint8_t inTaster=0;
+    uint8_t inTasterAlt=0;
+    uint8_t posWrite=0;
+    uint8_t posRead=0;
     
     //Initialisieren
     initBoard(1);
@@ -54,26 +59,34 @@ int main(void)
         muster[i] = 0;
     }
     
-    lcdLog("Start Aufzeichnung");
-    for (uint16_t i = 0; i < ANZAHL; i=i+1)
-    {
-        uint8_t schalter = switchReadAll();
-        muster[i] = schalter;
-        ledWriteAll(schalter);
-        _delay_ms(10);
-    }
+    
     
     
     //Unendlichschlaufe
     while(1)
     {
-        lcdLog("Wiedergabe");
-        for (uint16_t i = 0; i < ANZAHL; i=i+1)
+        //Eingabe------------------------------------------------------------------
+        inTasterAlt=inTaster;
+        inTaster=buttonReadAllPL();
+        posRead=(inTasterAlt^inTaster)&inTaster&1;
+        posWrite=(inTasterAlt^inTaster)&inTaster&2;
+        adresse = switchReadAll();
+        
+        //Verarbeitung-------------------------------------------------------------
+        
+        if (posRead)
         {
-            ledWriteAll(muster[i]);
-            _delay_ms(10);
+            lcdLog("RI: %u W: %u",adresse,muster[adresse]);
+        }
+        if (posWrite)
+        {
+            //Wert von ADC08 (Poti0) im Array speichern
+            //(Adresse von den Schaltern)
+            muster[adresse] = adcRead(ADC_08_POTI_1);
+            lcdLog("WI: %u W: %u",adresse,muster[adresse]);
         }
         
+        //Ausgabe------------------------------------------------------------------
     }
 }
 

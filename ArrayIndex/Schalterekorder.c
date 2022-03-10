@@ -3,7 +3,7 @@
 * MMMMMMMMMMMM   SSSSSSSSSSSS   WW   WW   WW   MECHATRONIK
 * MM   MM   MM   SS             WW   WW   WW   SCHULE
 * MM   MM   MM   SSSSSSSSSSSS   WW   WW   WW   WINTERTHUR
-* MM   MM   MM             SS   WW   WW   WW
+* MM   MM   MM             SS   WW   WW   WW   
 * MM   MM   MM   SSSSSSSSSSSS   WWWWWWWWWWWW   www.msw.ch
 *
 *
