@@ -3,7 +3,7 @@
 * MMMMMMMMMMMM   SSSSSSSSSSSS   WW   WW   WW   MECHATRONIK
 * MM   MM   MM   SS             WW   WW   WW   SCHULE
 * MM   MM   MM   SSSSSSSSSSSS   WW   WW   WW   WINTERTHUR
-* MM   MM   MM             SS   WW   WW   WW   
+* MM   MM   MM             SS   WW   WW   WW
 * MM   MM   MM   SSSSSSSSSSSS   WWWWWWWWWWWW   www.msw.ch
 *
 *
@@ -34,52 +34,59 @@
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
 
-#define ANZAHL 256
+#define ANZAHL  256
 
 //Hauptprogramm
 int main(void)
 {
     //Variablen
-    uint16_t outLeds = 0;
-    //Speicherplatz für 255 Muster reserviert
-    uint16_t muster [ANZAHL];
     
-    uint8_t schalter=0;
+    //Speicherplatz für 255 Muster reservieren
+    uint16_t muster[ANZAHL];
+    
+    uint8_t adresse=0;
+    uint16_t ausgabe=0;
+    uint8_t inTaster=0;
+    uint8_t inTasterAlt=0;
+    uint8_t posWrite=0;
+    uint8_t posRead=0;
+    
     //Initialisieren
     initBoard(1);
-    //alle Muster auf 0 setzen  
+    //alle Muster auf 0 setzen
     for (uint16_t i = 0; i < ANZAHL; i=i+1)
     {
         muster[i] = 0;
     }
     
-    //2er-Reihe in das Array abfühlen
-    //falls die 2er-Reihezahl durch 10 Teilbar ist. auf 0 setztn
-    for ( uint16_t i = 0; i < ANZAHL; i=i+1)
-    {
-        uint16_t zahl= i*2;
-        if (zahl%10 )
-        {
-           muster[i] =zahl ;
-        }
-        else
-        {
-            muster[i] = 0;
-        }
-    }
+    
     
     
     //Unendlichschlaufe
     while(1)
     {
         //Eingabe------------------------------------------------------------------
-        schalter = switchReadAll();
+        inTasterAlt=inTaster;
+        inTaster=buttonReadAllPL();
+        posRead=(inTasterAlt^inTaster)&inTaster&1;
+        posWrite=(inTasterAlt^inTaster)&inTaster&2;
+        adresse = switchReadAll();
+        
         //Verarbeitung-------------------------------------------------------------
-        outLeds = muster[schalter];
+        
+        if (posRead)
+        {
+            lcdLog("RI: %u W: %u",adresse,muster[adresse]);
+        }
+        if (posWrite)
+        {
+            //Wert von ADC08 (Poti0) im Array speichern
+            //(Adresse von den Schaltern)
+            muster[adresse] = adcRead(ADC_08_POTI_1);
+            lcdLog("WI: %u W: %u",adresse,muster[adresse]);
+        }
         
         //Ausgabe------------------------------------------------------------------
-        ledWriteAll(outLeds);
-        lcdLog("I: %u O: %u",schalter, outLeds);
     }
 }
 
