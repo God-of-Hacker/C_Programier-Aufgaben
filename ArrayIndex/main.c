@@ -40,7 +40,7 @@
 int main(void)
 {
     //Variablen
-    uint16_t leds = 0;
+    uint16_t outLeds = 0;
     //Speicherplatz für 255 Muster reserviert
     uint16_t muster [ANZAHL];
     
@@ -53,22 +53,23 @@ int main(void)
         muster[i] = 0;
     }
     
-    //Bestimte Muster definieren
-    muster[0]   = 0xFFFF;
-    muster[1]   = 0x0001;
-    muster[2]   = 0xAAAA;
-    muster[128] = 0xF000;
-    muster[192] = 0x0F0F;
-    muster[255] = 0x000F;
+    //2er-Reihe in das Array abfühlen
+    for ( uint16_t i = 0; i < ANZAHL; i=i+1)
+    {
+        muster[i]= i*2;
+    }
+    
+    
     //Unendlichschlaufe
     while(1)
     {
         //Eingabe------------------------------------------------------------------
         schalter = switchReadAll();
         //Verarbeitung-------------------------------------------------------------
-        leds = muster[schalter];
+        outLeds = muster[schalter];
+        lcdLog("I: %u O: %u",schalter, outLeds);
         //Ausgabe------------------------------------------------------------------
-        ledWriteAll(leds);
+        ledWriteAll(outLeds);
     }
 }
 
