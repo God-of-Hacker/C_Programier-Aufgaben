@@ -54,9 +54,18 @@ int main(void)
     }
     
     //2er-Reihe in das Array abfühlen
+    //falls die 2er-Reihezahl durch 10 Teilbar ist. auf 0 setztn
     for ( uint16_t i = 0; i < ANZAHL; i=i+1)
     {
-        muster[i]= i*2;
+        uint16_t zahl= i*2;
+        if (zahl%10 )
+        {
+           muster[i] =zahl ;
+        }
+        else
+        {
+            muster[i] = 0;
+        }
     }
     
     
@@ -67,9 +76,10 @@ int main(void)
         schalter = switchReadAll();
         //Verarbeitung-------------------------------------------------------------
         outLeds = muster[schalter];
-        lcdLog("I: %u O: %u",schalter, outLeds);
+        
         //Ausgabe------------------------------------------------------------------
         ledWriteAll(outLeds);
+        lcdLog("I: %u O: %u",schalter, outLeds);
     }
 }
 
