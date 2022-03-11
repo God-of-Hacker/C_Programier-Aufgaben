@@ -23,11 +23,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000678  00000000  00000000  0000591c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000cda  00000000  00000000  00005f94  2**0
+ 10 .debug_str    00000ce6  00000000  00000000  00005f94  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00001a0f  00000000  00000000  00006c6e  2**0
+ 11 .debug_loc    00001a0f  00000000  00000000  00006c7a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000218  00000000  00000000  0000867d  2**0
+ 12 .debug_ranges 00000218  00000000  00000000  00008689  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -210,7 +210,7 @@ Disassembly of section .text:
       inGray = switchReadAll() & SCHALTER_EINER;  
  12a:	8a b9       	out	0x0a, r24	; 10
  12c:	0b d0       	rcall	.+22     	; 0x144 <switchReadAll>
-      inDez = DEZ[inGray];
+      inDez = GRAY_TO_DEZ[inGray];
  12e:	8f 70       	andi	r24, 0x0F	; 15
  130:	e8 2f       	mov	r30, r24
  132:	f0 e0       	ldi	r31, 0x00	; 0
