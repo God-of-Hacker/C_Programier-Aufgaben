@@ -58,14 +58,19 @@
 #define ZAHL_7SEG_13 (SEGMENT_B | SEGMENT_C | SEGMENT_D | SEGMENT_E | SEGMENT_G)
 #define ZAHL_7SEG_14 (SEGMENT_A | SEGMENT_F | SEGMENT_E | SEGMENT_D | SEGMENT_G)
 #define ZAHL_7SEG_15 (SEGMENT_A | SEGMENT_F | SEGMENT_E | SEGMENT_G)
-#define OFF 0
+#define  OFF 0
 #define  OFFSET 4
 #define  SCHALTER_EINER  0b00001111
 #define  SCHALTER_ZEHNER 0b11110000
 
-const uint8_t DECORDER[] = {ZAHL_7SEG_0, ZAHL_7SEG_1, ZAHL_7SEG_2, ZAHL_7SEG_3, ZAHL_7SEG_4, ZAHL_7SEG_5,
-                            ZAHL_7SEG_6, ZAHL_7SEG_7, ZAHL_7SEG_8, ZAHL_7SEG_9, ZAHL_7SEG_10,
-                            ZAHL_7SEG_11, ZAHL_7SEG_12, ZAHL_7SEG_13, ZAHL_7SEG_14, ZAHL_7SEG_15};
+
+//const uint8_t DECORDER[] = {ZAHL_7SEG_0, ZAHL_7SEG_1, ZAHL_7SEG_2, ZAHL_7SEG_3, ZAHL_7SEG_4, ZAHL_7SEG_5,
+                          //  ZAHL_7SEG_6, ZAHL_7SEG_7, ZAHL_7SEG_8, ZAHL_7SEG_9, ZAHL_7SEG_10,
+                           // ZAHL_7SEG_11, ZAHL_7SEG_12, ZAHL_7SEG_13, ZAHL_7SEG_14, ZAHL_7SEG_15};
+                            
+                            const uint8_t DEZ[] = {ZAHL_7SEG_0,ZAHL_7SEG_1,ZAHL_7SEG_3,ZAHL_7SEG_2,ZAHL_7SEG_7,ZAHL_7SEG_6,
+                                                   ZAHL_7SEG_4,ZAHL_7SEG_5,ZAHL_7SEG_15,ZAHL_7SEG_14,ZAHL_7SEG_12,ZAHL_7SEG_13,
+                                                   ZAHL_7SEG_8,ZAHL_7SEG_9,ZAHL_7SEG_11,ZAHL_7SEG_10}; //Gray-Code
 
 //Hauptprogramm
 int main(void)
@@ -74,36 +79,18 @@ int main(void)
     uint8_t schalter = 0;
     uint8_t schalter2 = 0;
     uint8_t zahl = 0;
+    uint8_t inGray =0;
+    uint8_t inDez =0;
     //Initialisieren
     initBoard(1);
     DDRD = 0xff; //Alle Bits von PortD als Ausgang konfugurieren
     //Unendlichschlaufe
     while(1)
     {
-        schalter = switchReadAll() & SCHALTER_EINER;
-        schalter2 = (switchReadAll() & SCHALTER_ZEHNER) >> OFFSET;
-        if ((schalter > 9) || (schalter2 > 9))
-        { 
-            PORTD = SEGMENT_DP;
-            
-        } 
-        else 
-        {
-           zahl = schalter + (10*schalter2);
-           if (zahl > 15)
-           {
-               PORTD = OFF;
-           }
-           else
-           {
-               PORTD = DECORDER[zahl];
-           }
-        }
-        
-            
-         
-        
-           
+
+      inGray = switchReadAll() & SCHALTER_EINER;  
+      inDez = DEZ[inGray];
+      PORTD = inDez;    
         
         
         
