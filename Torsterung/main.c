@@ -75,20 +75,15 @@ int main(void)
     
     uint8_t ledGateOpen=0;
     uint8_t ledGateClose =0;
-    uint8_t ledLightBariere =0;
+    uint8_t ledSafetyLightBariere =0;
     uint8_t ledSensorError =0;
     uint8_t ledFlashingLight =0;
     uint8_t ledMotorOpen =0;
     uint8_t ledMotorClose =0;
-
-
-    uint16_t outRot=0;
-    uint16_t outGruen=0;
-    uint16_t outBlau=0;
-    
     
     uint8_t blink = 0;
     uint64_t timerBlink_ms = 0;
+    
     zustand_t state = STARTUP;
     //Initialisieren
     initBoard(1);
@@ -133,8 +128,7 @@ int main(void)
             ledFlashingLight = OFF;
             ledMotorOpen = OFF;
             ledMotorClose = OFF;
-            ledLightBariere = OFF;
-            
+            ledSafetyLightBariere = OFF;
             blink = OFF;
             ledSensorError = OFF ;
             if (posFlankeButtonGateOpen)
@@ -153,7 +147,7 @@ int main(void)
             case OPEN:
             lcdLog("Open");
             ledGateClose = OFF;
-            ledLightBariere = OFF;
+            ledSafetyLightBariere = OFF;
             ledMotorOpen = OUT_MASKE_LED_MOTOR_OPPEN;
             if (SchalterSensorGategeschlossen && SchalterSensorGateOffen )
             {
@@ -171,10 +165,10 @@ int main(void)
             }
             break;
             case CLOSE:
+            lcdLog("Close");
             ledMotorClose = OUT_MASKE_LED_MOTOR_CLOSE;
             ledGateOpen = OFF;
-            lcdLog("Close");
-            ledLightBariere = OFF;
+            ledSafetyLightBariere = OFF;
             
             if (SchalterSensorGateOffen && SchalterSensorGategeschlossen)
             {
@@ -208,7 +202,7 @@ int main(void)
             
             ledMotorOpen = OFF;
             ledMotorClose = OFF;
-            ledLightBariere = OFF;
+            ledSafetyLightBariere = OFF;
             blink = OFF;
             ledSensorError = OUT_MASKE_LED_SENSOR_ERROR ;
             ledGateOpen = OFF;
@@ -216,7 +210,7 @@ int main(void)
             break;
             case SAFETY_STOP:
             lcdLog("Safety Stop");
-            ledLightBariere = OUT_MASKE_LED_LIGHT_BARRIERE;
+            ledSafetyLightBariere = OUT_MASKE_LED_LIGHT_BARRIERE;
             blink = OFF;
             ledGateOpen = OFF;
             ledGateClose = OFF;
@@ -252,8 +246,7 @@ int main(void)
         {
             timerBlink_ms = PERIOD;
         }
-        ledWriteAll(ledGateOpen | ledGateClose | ledLightBariere | ledSensorError | ledFlashingLight | ledMotorOpen | ledMotorClose);
-        rgbWrite(outRot,outGruen,outBlau);
+        ledWriteAll(ledGateOpen | ledGateClose | ledSafetyLightBariere | ledSensorError | ledFlashingLight | ledMotorOpen | ledMotorClose);
         timerBlink_ms = timerBlink_ms + PROGRAMMTAKT_MS;
         _delay_ms(PROGRAMMTAKT_MS);
     }
