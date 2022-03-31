@@ -41,13 +41,13 @@
 #define IN_MASKE_SCHALTER_GESCHLOSSEN           (1<<1)
 #define IN_MASKE_SCHALTER_SAFETY_LIGHT_BARRIER  (1<<2)
 
-#define IN_MASKE_LED_GATE_OPPEN         (1<<0)
-#define IN_MASKE_LED_GATE_CLOSE         (1<<1)
-#define IN_MASKE_LED_LIGHT_BARRIERE     (1<<2)
-#define IN_MASKE_LED_SENSOR_ERROR       (1<<3)
-#define IN_MASKE_LED_FLASHING_LIGHT     (1<<4)
-#define IN_MASKE_LED_MOTOR_OPPEN        (1<<6)
-#define IN_MASKE_LED_MOTOR_CLOSE        (1<<7)
+#define OUT_MASKE_LED_GATE_OPPEN         (1<<0)
+#define OUT_MASKE_LED_GATE_CLOSE         (1<<1)
+#define OUT_MASKE_LED_LIGHT_BARRIERE     (1<<2)
+#define OUT_MASKE_LED_SENSOR_ERROR       (1<<3)
+#define OUT_MASKE_LED_FLASHING_LIGHT     (1<<4)
+#define OUT_MASKE_LED_MOTOR_CLOSE        (1<<7)
+#define OUT_MASKE_LED_MOTOR_OPPEN        (1<<6)
 #define OFF                              0
 
 #define ON_TIME             400
@@ -154,7 +154,7 @@ int main(void)
             lcdLog("Open");
             ledGateClose = OFF;
             ledLightBariere = OFF;
-            ledMotorOpen = IN_MASKE_LED_MOTOR_OPPEN;
+            ledMotorOpen = OUT_MASKE_LED_MOTOR_OPPEN;
             if (SchalterSensorGategeschlossen && SchalterSensorGateOffen )
             {
                 state = ERROR ;
@@ -166,12 +166,12 @@ int main(void)
             if (SchalterSensorGateOffen)
             {
                 state = STOP ;
-                ledGateOpen = IN_MASKE_LED_GATE_OPPEN;
+                ledGateOpen = OUT_MASKE_LED_GATE_OPPEN;
                 ledMotorOpen = OFF;
             }
             break;
             case CLOSE:
-            ledMotorClose = IN_MASKE_LED_MOTOR_CLOSE;
+            ledMotorClose = OUT_MASKE_LED_MOTOR_CLOSE;
             ledGateOpen = OFF;
             lcdLog("Close");
             ledLightBariere = OFF;
@@ -191,7 +191,7 @@ int main(void)
             if (SchalterSensorGategeschlossen)
             {
                 state = STOP ;
-                ledGateClose = IN_MASKE_LED_GATE_CLOSE;
+                ledGateClose = OUT_MASKE_LED_GATE_CLOSE;
             }
             break;
             case ERROR:
@@ -210,13 +210,13 @@ int main(void)
             ledMotorClose = OFF;
             ledLightBariere = OFF;
             blink = OFF;
-            ledSensorError = IN_MASKE_LED_SENSOR_ERROR ;
+            ledSensorError = OUT_MASKE_LED_SENSOR_ERROR ;
             ledGateOpen = OFF;
             ledGateClose =OFF;
             break;
             case SAFETY_STOP:
             lcdLog("Safety Stop");
-            ledLightBariere = IN_MASKE_LED_LIGHT_BARRIERE;
+            ledLightBariere = OUT_MASKE_LED_LIGHT_BARRIERE;
             blink = OFF;
             ledGateOpen = OFF;
             ledGateClose = OFF;
@@ -244,7 +244,7 @@ int main(void)
             }
             if (timerBlink_ms >= PERIOD)
             {
-                ledFlashingLight = IN_MASKE_LED_FLASHING_LIGHT;
+                ledFlashingLight = OUT_MASKE_LED_FLASHING_LIGHT;
                 timerBlink_ms = OFF;
             }
         }
