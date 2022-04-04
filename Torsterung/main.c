@@ -9,7 +9,7 @@
 *
 * Dateiname: main.c
 *
-* Projekt  : Muster
+* Projekt  : Toesteuerung
 * Hardware : uC-Board, ATmega2560v von Atmel
 *
 * Copyright: MSW, E2
@@ -27,7 +27,7 @@
 * Verlauf:
 * ========
 * Datum:      Autor:         Version   Grund der Änderung:
-* dd.mm.yyyy  M. Muster      V1.0      Neuerstellung
+* 30.03.22    F.Russom        V1.0      Neuerstellung
 *
 \*********************************************************************************/
 
@@ -42,7 +42,7 @@
 #define IN_MASKE_SCHALTER_SAFETY_LIGHT_BARRIER  (1<<2)
 
 #define OUT_MASKE_LED_GATE_OPPEN         (1<<0)
-#define OUT_MASKE_LED_GATE_CLOSE         (1<<1)
+#define OUT_MASKE_LED_GATE_CLOSE         (1<<1)                             //Konstanten definieren
 #define OUT_MASKE_LED_LIGHT_BARRIERE     (1<<2)
 #define OUT_MASKE_LED_SENSOR_ERROR       (1<<3)
 #define OUT_MASKE_LED_FLASHING_LIGHT     (1<<4)
@@ -70,8 +70,7 @@ int main(void)
     
     uint8_t SchalterSensorGateOffen=0;
     uint8_t SchalterSensorGategeschlossen=0;
-    uint8_t SchalterSensorSafetyLightBarrier=0;
-
+    uint8_t SchalterSensorSafetyLightBarrier=0;                                     //Variable 0 setzen
     
     uint8_t ledGateOpen=0;
     uint8_t ledGateClose =0;
@@ -84,140 +83,141 @@ int main(void)
     uint8_t blink = 0;
     uint64_t timerBlink_ms = 0;
     
-    zustand_t state = STARTUP;
-    //Initialisieren
+    zustand_t state = STARTUP;                                                  //Anfangszustad auf STARTUP setzen
+    
+    //Initialisieren                                                            //Hardware Initialisieren
     initBoard(1);
     
     //Unendlichschlaufe
     while(1)
     {
         //Eingabe------------------------------------------------------------------
-        inTasterAlt = inTaster;
-        inTaster = buttonReadAllPL();
-        posFlanken = (inTaster ^ inTasterAlt) & inTaster;
-        posFlankeButtonGateOpen = posFlanken & IN_MASKE_BUTTON_GATE_OPEN;
-        posFlankeButtonGateClose = posFlanken & IN_MASKE_BUTTON_GATE_CLOSE;
-        posFlankeButtonGateStop = posFlanken & IN_MASKE_BUTTON_GATE_STOP;
-        SchalterSensorGateOffen = switchReadAll() & IN_MASKE_SCHALTER_OFFEN;
-        SchalterSensorGategeschlossen = switchReadAll() & IN_MASKE_SCHALTER_GESCHLOSSEN;
-        SchalterSensorSafetyLightBarrier = switchReadAll() & IN_MASKE_SCHALTER_SAFETY_LIGHT_BARRIER;
+        inTasterAlt = inTaster;                                                                                 //Alter Buttonzustand
+        inTaster = buttonReadAllPL();                                                                           //Neuer Buttonzustand
+        posFlanken = (inTaster ^ inTasterAlt) & inTaster;                                                       //Positive Flanken aus altem und neuem Buttonzustand auslessen
+        posFlankeButtonGateOpen = posFlanken & IN_MASKE_BUTTON_GATE_OPEN;                                       //posFlankeButtonGateOpen aus positive Flanken auslessen
+        posFlankeButtonGateClose = posFlanken & IN_MASKE_BUTTON_GATE_CLOSE;                                     //posFlankeButtonGateClose aus positive Flanken auslessen
+        posFlankeButtonGateStop = posFlanken & IN_MASKE_BUTTON_GATE_STOP;                                       //posFlankeButtonGateStop aus positive Flanken auslessen
+        SchalterSensorGateOffen = switchReadAll() & IN_MASKE_SCHALTER_OFFEN;                                    //SchalterSensorGate geöffnet auslessen
+        SchalterSensorGategeschlossen = switchReadAll() & IN_MASKE_SCHALTER_GESCHLOSSEN;                        //SchalterSensorGate geschlossen auslessen
+        SchalterSensorSafetyLightBarrier = switchReadAll() & IN_MASKE_SCHALTER_SAFETY_LIGHT_BARRIER;            //SchalterSensorSafety light barrier auslessen
         
         //Verarbeitung-------------------------------------------------------------
-        if (CLOSE | OPEN)
+        if (CLOSE | OPEN)                                   //OPEN oder CLOSE ?
         {
-            blink = 1;
+            blink = 1;                                      //blinken aktiv
         }
         else
         {
-            blink = OFF;
+            blink = OFF;                                    //blingen deaktivieren
             
         }
         
-        switch (state)
+        switch (state)                                      //Zustand
         {
-            case STARTUP:
-            blink =OFF;
+            case STARTUP:                                   //STARTUP
+            blink =OFF;                                     //blingen deaktivieren
+            ledFlashingLight = OFF;                         //LED flashig light auf 0 setzen
             lcdLog("Startup");
-            if (SchalterSensorGategeschlossen )
+            if (SchalterSensorGategeschlossen )             //SchalterSensorGate geschlossen ?
             {
-                state = STOP ;
+                state = STOP ;                              //Zustand auf STOP setzen
             }
             break;
-            case STOP:
+            case STOP:                                       //STOP
             lcdLog("Stop");
-            ledFlashingLight = OFF;
-            ledMotorOpen = OFF;
-            ledMotorClose = OFF;
-            ledSafetyLightBariere = OFF;
-            blink = OFF;
-            ledSensorError = OFF ;
-            if (posFlankeButtonGateOpen)
+            ledFlashingLight = OFF;                          //LED flashig light auf 0 setzen
+            ledMotorOpen = OFF;                              //motor gate open deaktivieren
+            ledMotorClose = OFF;                             //motor gate close deaktivieren
+            ledSafetyLightBariere = OFF;                     //LED safty light barrier auf 0 setzen
+            blink = OFF;                                     //blingen deaktivieren
+            ledSensorError = OFF ;                           //LED sensor error auf 0 stzen
+            if (posFlankeButtonGateOpen)                     //posFlankeButtonGateOpen ?
             {
-                state = OPEN;
+                state = OPEN;                                //Zustand auf OPEN setzen
             }
-            if (posFlankeButtonGateClose )
+            if (posFlankeButtonGateClose)                    //posFlankeButtonGateClose ?
             {
-                state = CLOSE;
+                state = CLOSE;                               //Zustand auf CLOSE setzen
             }
-            if (SchalterSensorGateOffen && SchalterSensorGategeschlossen)
+            if (SchalterSensorGateOffen && SchalterSensorGategeschlossen)  //SchalterSensorGate geöffnet und SchalterSensorGate geschlossen?
             {
-                state = ERROR ;
+                state = ERROR ;                              //Zustand auf ERROR setzen
             }
             break;
             case OPEN:
             lcdLog("Open");
-            ledGateClose = OFF;
-            ledSafetyLightBariere = OFF;
-            ledMotorOpen = OUT_MASKE_LED_MOTOR_OPPEN;
-            if (SchalterSensorGategeschlossen && SchalterSensorGateOffen )
+            ledGateClose = OFF;                              //LED gate closed auf 0 setzen
+            ledSafetyLightBariere = OFF;                     //LED safty light barrier auf 0 setzen
+            ledMotorOpen = OUT_MASKE_LED_MOTOR_OPPEN;        //motor gate open aktivieren
+            if (SchalterSensorGategeschlossen && SchalterSensorGateOffen)  //SchalterSensorGate geschlossen und SchalterSensorGate geöffnet ?
             {
-                state = ERROR ;
+                state = ERROR ;                              //Zustand auf ERROR setzen
             }
-            if (posFlankeButtonGateStop)
+            if (posFlankeButtonGateStop)                     //posFlankeButtonGateStop ?
             {
-                state = STOP ;
+                state = STOP ;                               //Zustand auf STOP setzen
             }
-            if (SchalterSensorGateOffen)
+            if (SchalterSensorGateOffen)                     //SchalterSensorGate geöffnet
             {
-                state = STOP ;
-                ledGateOpen = OUT_MASKE_LED_GATE_OPPEN;
-                ledMotorOpen = OFF;
+                ledGateOpen = OUT_MASKE_LED_GATE_OPPEN;      //LED gate opened auslesen
+                ledMotorOpen = OFF;                          //motor gate open deaktivieren
+                state = STOP ;                               //Zustand auf STOP setzen
             }
             break;
             case CLOSE:
             lcdLog("Close");
-            ledMotorClose = OUT_MASKE_LED_MOTOR_CLOSE;
-            ledGateOpen = OFF;
-            ledSafetyLightBariere = OFF;
+            ledMotorClose = OUT_MASKE_LED_MOTOR_CLOSE;       //motor gate close aktivieren
+            ledGateOpen = OFF;                               //LED gate opened auf  setzen
+            ledSafetyLightBariere = OFF;                     //LED safty light barrier auf 0 setzen
             
-            if (SchalterSensorGateOffen && SchalterSensorGategeschlossen)
+            if (SchalterSensorGateOffen && SchalterSensorGategeschlossen)  //SchalterSensorGate geöffnet und SchalterSensorGate  geschlossen?
             {
-                state = ERROR ;
+                state = ERROR ;                                            //Zustand auf ERROR setzen
             }
-            if (posFlankeButtonGateStop )
+            if (posFlankeButtonGateStop )                                  //posFlankeButtonGateStop ?
             {
-                state = STOP ;
+                state = STOP ;                                             //Zustand auf STOP setzen
             }
-            if (SchalterSensorSafetyLightBarrier)
+            if (SchalterSensorSafetyLightBarrier)                          //SchalterSensorSafety light barrier  ?
             {
-                state = SAFETY_STOP;
+                state = SAFETY_STOP;                                       //Zustand auf SAFETY_STOP setzen
             }
-            if (SchalterSensorGategeschlossen)
+            if (SchalterSensorGategeschlossen)                             //SchalterSensorGate  geschlossen?
             {
-                state = STOP ;
-                ledGateClose = OUT_MASKE_LED_GATE_CLOSE;
+                state = STOP ;                                             //Zustand auf STOP setzen
+                ledGateClose = OUT_MASKE_LED_GATE_CLOSE;                   //LED gate closed auslesen
             }
             break;
             case ERROR:
             lcdLog("Error");
-            if (SchalterSensorGateOffen && SchalterSensorGategeschlossen)
+            if (SchalterSensorGateOffen && SchalterSensorGategeschlossen)  //SchalterSensorGate geöffnet und SchalterSensorGate  geschlossen?
             {
-                state = ERROR ;
+                state = ERROR ;                                            //Zustand auf ERROR setzen
             }
             else
             {
-                ledSensorError = OFF;
-                state = STOP;
+                state = STOP;                                              //Zustand auf STOP setzen
             }
             
-            ledMotorOpen = OFF;
-            ledMotorClose = OFF;
-            ledSafetyLightBariere = OFF;
-            blink = OFF;
-            ledSensorError = OUT_MASKE_LED_SENSOR_ERROR ;
-            ledGateOpen = OFF;
-            ledGateClose =OFF;
+            ledMotorOpen = OFF;                                            //motor gate open deaktivieren
+            ledMotorClose = OFF;                                           //motor gate close deaktivieren
+            ledSafetyLightBariere = OFF;                                   //LED safty light barrier auf 0 setzen
+            blink = OFF;                                                   //blingen deaktivieren
+            ledSensorError = OUT_MASKE_LED_SENSOR_ERROR ;                  //LED sensor error auslesen
+            ledGateOpen = OFF;                                             //LED gate opened auf  setzen
+            ledGateClose =OFF;                                             //LED gate closed auf 0 setzen
             break;
             case SAFETY_STOP:
             lcdLog("Safety Stop");
-            ledSafetyLightBariere = OUT_MASKE_LED_LIGHT_BARRIERE;
-            blink = OFF;
-            ledGateOpen = OFF;
-            ledGateClose = OFF;
-            ledSensorError = OFF;
+            ledSafetyLightBariere = OUT_MASKE_LED_LIGHT_BARRIERE;         //LED safty light barrier auslesen
+            blink = OFF;                                                  //blingen deaktivieren
+            ledGateOpen = OFF;                                            //LED gate opened auf  setzen
+            ledGateClose = OFF;                                           //LED gate closed auf 0 setzen
+            ledSensorError = OFF;                                         //LED sensor error auf  sezten
             ledFlashingLight = OFF;
-            ledMotorOpen = OFF;
-            ledMotorClose = OFF;
+            ledMotorOpen = OFF;                                            //motor gate open deaktivieren
+            ledMotorClose = OFF;                                           //motor gate close deaktivieren
             if (posFlankeButtonGateOpen)
             {
                 state = OPEN ;
