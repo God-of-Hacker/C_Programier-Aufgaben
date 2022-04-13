@@ -33,9 +33,11 @@
 
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
-#define IN_MASKE_POWER_TASTER 1
-#define IN_MASKE_MUSTER_TASTER 2
+#define IN_MASKE_POWER_TASTER 0x01
+#define IN_MASKE_MUSTER_TASTER 0x02
 #define IN_MASKE_SCHALTER_AKKU 0b11111111
+#define AKKU_LEER              3300
+#define AKKU_VOLL              3700
 
 #define MUSTER_0        (0xffff)
 #define MUSTER_1        (0b1000000000000001)
@@ -54,19 +56,18 @@
 #define MUSTER_14       (0b0010000000000100)
 #define MUSTER_15       (0b0001111111111000)
 
-#define SYSTEM_TICK_MS      10
+#define PROGRAMMTAKT_MS      10
 #define ON_TIME             150
 #define OFF_TIME            50
-#define PERIOD              (ON_TIME+OFF_TIME)
+#define PERIODE              (ON_TIME+OFF_TIME)
 
-#define SIZE 65535
 
-#define IN_MASKE_AKKU_SPANNUNGSMESSUNG   0b11111111
-#define BALKENGROESSE_LEDS               5
+
+
 //#pragma gcc optimize 0
 
-//typedef enum zustand_t {MUSTER_0, MUSTER_1, MUSTER_2, MUSTER_3, MUSTER_4, MUSTER_5, MUSTER_6,
-// MUSTER_7, MUSTER_8, MUSTER_9, MUSTER_10, MUSTER_11, MUSTER_12, MUSTER_13, MUSTER_14, MUSTER_15 } zustand_t;
+
+typedef enum zustand_t {AUS, AN, AKKU, MUSTER_WECHSELN} zustand_t;
 
 const uint16_t DECORDER[] = {MUSTER_0, MUSTER_1, MUSTER_2, MUSTER_3, MUSTER_4, MUSTER_5, MUSTER_6,
 MUSTER_7, MUSTER_8, MUSTER_9, MUSTER_10, MUSTER_11, MUSTER_12, MUSTER_13, MUSTER_14, MUSTER_15};
@@ -86,9 +87,13 @@ int main(void)
     uint16_t i = 0;
     uint64_t timerBlink_ms = 0;
     uint8_t blink = 0;
-    uint16_t spannung_mv = 0;
+    uint16_t spannung_mV = 0;
     
-    //zustand_t state = AUS;
+    uint8_t rot = 0;
+    uint8_t gruen = 0;
+    uint8_t blau = 0;
+    
+    zustand_t state = AUS;
     
     //Initialisieren
     initBoard(1);
@@ -101,66 +106,108 @@ int main(void)
         inTaster = buttonReadAllPL();
         power = (inTasterAlt ^ inTaster) & inTaster & IN_MASKE_POWER_TASTER;
         muster = (inTasterAlt ^ inTaster) & inTaster & IN_MASKE_MUSTER_TASTER;
-        
         schalterAkku = switchReadAll() & IN_MASKE_SCHALTER_AKKU;
-        
-        
-        
-        
-        
+        spannung_mV = (uint32_t) schalterAkku * 5000 / 255;
         
         //Verarbeitung-------------------------------------------------------------
         
-        if (power)
+        switch (state)
         {
-            rgbWrite(0,100,0);
+            case AUS:
+            lcdLog("Aus                 ");
+            leds=0;// LED's aus;
+            blink=0;
+            rot=0;
+            gruen=0;
+            blau=0;
+            if (power)
+            {
+                state = AN ;//setzen;
+            }
 
-            
+            break;
+            case AN:
+            lcdLog("An                  ");
+            rot=0;
+            gruen=250;
+            blau=0;// Grün leuchtet;
             if (muster)
             {
-                i=i+1;
-                muster = buttonReadAllPL() & IN_MASKE_MUSTER_TASTER;
-                inDez = DECORDER[i];
-                leds = inDez;
+                state = MUSTER_WECHSELN;// setzen;
             }
             
-            if (schalterAkku < 100)
+            if (spannung_mV < AKKU_LEER)
             {
-                blink = 1;
-                leds = 0;
+                state = AKKU ;
             }
-            else 
+            if (power)
             {
-                blink = 0;             
+                state = AUS ;//setzen;
             }
-        }
-        else
-        {
+            break;
+            case AKKU:
+            lcdLog("Akku Leer           ");
+            blink=1;
+            leds=0;
+            if (spannung_mV > AKKU_VOLL)
+            {
+                state = AUS ;
+            }
+            if (power)
+            {
+                state = AUS ;//setzen;
+            }
             
+            break;
+            case MUSTER_WECHSELN:
+            lcdLog("Muster Wechseln     ");
+            if (spannung_mV < AKKU_LEER)
+            {
+                state = AKKU ;
+            }
+            if (power)
+            {
+                state = AUS ;//setzen;
+            }
+            leds = DECORDER [i]; //Array
+            if (muster)
+            {
+                i = i+1;
+                if (i>16)
+                {
+                    i=0;
+                }
+            }
+            break;
+            default:
+            ;
         }
         //Ausgabe------------------------------------------------------------------
-        lcdLog("%u",blink);
-        lcdLog("%u",schalterAkku);
         if (blink)
         {
             if (timerBlink_ms >= ON_TIME)
             {
-                rgbWrite(0,0,0);
+                rot=0;
+                gruen=0;
+                blau=0;
             }
-            if (timerBlink_ms >= PERIOD)
+            if (timerBlink_ms >= PERIODE)
             {
-                rgbWrite(100,0,0);
+                rot=250;
+                gruen=0;
+                blau=0;//RGB Rot blinkt;
                 timerBlink_ms = 0;
             }
         }
         else
         {
-            timerBlink_ms = PERIOD;
+            timerBlink_ms = PERIODE;
         }
         ledWriteAll(leds);
+        rgbWrite(rot,gruen,blau);
         //Warten-------------------------------------------------------------------
-        _delay_ms(SYSTEM_TICK_MS);
-        timerBlink_ms = timerBlink_ms + SYSTEM_TICK_MS;
+        timerBlink_ms = timerBlink_ms + PROGRAMMTAKT_MS;
+        _delay_ms(PROGRAMMTAKT_MS);
     }
 }
 
