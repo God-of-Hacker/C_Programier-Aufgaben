@@ -33,39 +33,40 @@
 
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
-#define SCHALTER_MUELL_OFFEN                (0b00000001)
-#define SCHALTER_MUELL_REINWERFEN           (0b00000010)
-#define SCHALTER_PET                        (0b00000100)
-#define SCHALTER_ALU                        (0b00001000)
-#define SCHALTER_MUELL                      (0b00010000)
-#define SCHALTER_PET_ALU_MUELL_DRINNEN      (0b00100000)
+#define TASTER_ABFALL                       (0b00000001)
+#define TASTER_ABFALL_DRINNEN               (0b00000010)
 
-#define LED_MUELL_OFFEN                (0b00000001)
-#define LED_MUELL_ZU                   (0b00000010)
-#define LED_PET                        (0b00000100)
-#define LED_ALU                        (0b00001000)
-#define LED_MUELL                      (0b00010000)
+#define SCHALTER_INFRAROT                   (0b00000001)
+#define SCHALTER_TON                        (0b00000010)
+#define SCHALTER_LEITFEAHIGKEIT             (0b00000100)
+#define LED_TONNE_AUF                       (0x01)
+#define LED_TONNE_ZU                        (0x02)
 
-typedef enum Zustand_t {STARTUP, MUELLEIMER_AUF, MUELLEIMER_ZU, PET, ALU, MUELL} zustand_t;
+#define SYSTEMTACKT_MS                     10
+
+typedef enum Zustand_t {TONNE_ZU, TONNE_AUF, PET, ALU, MUELL_ANALYSIEREN, MUELL} zustand_t;
 //Hauptprogramm
 int main(void)
 {
     //Variablen
-    uint16_t schalter_Muell_offen =0;
-    uint16_t schalter_Muell_reinwerfen =0;
-    uint16_t schalter_Pet =0;
-    uint16_t schalter_Alu =0;
-    uint16_t schalter_Muell =0;
-    uint16_t schalter_Pet_Alu_Muell_drinnen =0;
+    uint8_t inTaster=0;
+    uint8_t inTasterAlt=0;
+    uint8_t posFlanken=0;
     
-    uint16_t led_Muell_offen =0;
-    uint16_t led_Muell_zu =0;
-    uint16_t led_Pet =0;
-    uint16_t led_Alu =0;
-    uint16_t led_Muell =0;
+    uint16_t schalter_infrarot =0;
+    uint16_t schalter_ton =0;
+    uint16_t schalter_leitfaehigkeit =0;
+    uint16_t taster_Abfall =0;
+    uint16_t taster_Abfall_drinnen =0;
     
+
+    uint16_t led_Tonne_auf =0;
+    uint16_t led_Tonne_zu =0;
+    uint16_t rot = 0;
+    uint16_t blau = 0;
+    uint16_t gruen = 0;
     
-    zustand_t state = STARTUP;
+    zustand_t state = TONNE_AUF;
     
     
     
@@ -76,113 +77,109 @@ int main(void)
     while(1)
     {
         //Eingabe------------------------------------------------------------------
-        schalter_Muell_offen = switchReadAll() & SCHALTER_MUELL_OFFEN;
-        schalter_Muell_reinwerfen = switchReadAll() & SCHALTER_MUELL_REINWERFEN;
-        schalter_Pet = switchReadAll() & SCHALTER_PET;
-        schalter_Alu = switchReadAll() & SCHALTER_ALU;
-        schalter_Muell = switchReadAll() & SCHALTER_MUELL;
-        schalter_Pet_Alu_Muell_drinnen = switchReadAll() & SCHALTER_PET_ALU_MUELL_DRINNEN;
+        inTasterAlt = inTaster;                                                                                 //Alter Buttonzustand
+        inTaster = buttonReadAllPL();                                                                           //Neuer Buttonzustand
+        posFlanken = (inTaster ^ inTasterAlt) & inTaster;
+        taster_Abfall = posFlanken & TASTER_ABFALL;
+        taster_Abfall_drinnen = posFlanken & TASTER_ABFALL_DRINNEN;
+        schalter_infrarot = switchReadAll() & SCHALTER_INFRAROT;
+        schalter_leitfaehigkeit = switchReadAll() & SCHALTER_LEITFEAHIGKEIT;
+        schalter_ton = switchReadAll() & SCHALTER_TON;
         //Verarbeitung-------------------------------------------------------------
         switch (state)
         {
-            case STARTUP:
-            lcdWriteText(0,0,"STARTUP   ");
-
-            if (schalter_Muell_offen)
+            case TONNE_AUF:
+            led_Tonne_auf = TONNE_AUF;
+            led_Tonne_zu = 0;
+            rot = 0;
+            gruen = 0;
+            blau = 0;
+            lcdLog("Tonne Auf");
+            if (taster_Abfall)
             {
-                
-               state =  MUELLEIMER_AUF;//Zustand auf Mülleimer auf setzen;
+                state = TONNE_ZU; //Zustand auf Tonne zu setzen;
             }
             break;
-            case MUELLEIMER_AUF:
-            lcdWriteText(0,0,"MUELLEIMER AUF");
-            led_Muell_offen = LED_MUELL_OFFEN;// LED Mülleimer auf;
-            led_Muell_zu =0;
-            led_Pet =0;
-            led_Alu =0;
-            led_Muell =0;
-
-            if (schalter_Muell_reinwerfen && schalter_Muell_offen )
-            {
-               state = MUELLEIMER_ZU;// Zustand auf Mülleimer zu setzen;
-            }
+            case TONNE_ZU:
+            led_Tonne_zu = TONNE_ZU;
+            led_Tonne_auf = 0;
+            lcdLog("Muell drinnen");
+            _delay_ms(1000);
+            lcdLog("Tonne Zu");
+            _delay_ms(100);
+            state = MUELL_ANALYSIEREN;
             break;
-            case MUELLEIMER_ZU:
-            lcdWriteText(0,0,"MUELLEIMER ZU");
-            led_Muell_zu = LED_MUELL_ZU;// Mülleimer zu;
-            led_Muell_offen =0;
-            led_Pet =0;
-            led_Alu =0;
-            led_Muell =0;
+            case MUELL_ANALYSIEREN:
+            led_Tonne_zu = 0;
+            led_Tonne_auf = 0;
+            lcdLog("Muell analysieren");
 
-            if (schalter_Pet)
+            if (schalter_infrarot && !schalter_leitfaehigkeit)
             {
-                state = PET;// auf PET setzen;
+                _delay_ms(1500);
+                state = PET; // auf PET setzen;
             }
-            if (schalter_Alu)
-            {
-                state = ALU;//Zustand auf Alu setzen;
-            }
-            if (schalter_Muell)
-            {
-                state = MUELL;//Zustand auf Müll setzen;
-            }
-            break;
-            case PET:
-            lcdWriteText(0,0,"PET  ERKNAT   ");
-            if (schalter_Pet_Alu_Muell_drinnen)
-            {
-                state = STARTUP;
+            else if (!schalter_leitfaehigkeit)
+            {                
+                _delay_ms(1500);
+                state = PET; //PET setzen;
             }
             
-            led_Pet = LED_PET;
-            led_Muell_offen =0;
-            led_Muell_zu =0;
-            led_Alu =0;
-            led_Muell =0;
-
-            lcdWriteText(1,0,"Eimer Pet auf");
-            lcdWriteText(2,0,"Eimer Alu zu");
-            lcdWriteText(3,0,"Eimer Müll zu");
-
+            else if (!schalter_leitfaehigkeit && schalter_ton)
+            {
+                _delay_ms(1500);
+                state = PET; //auf PET setzen;
+            }
+            else if (schalter_infrarot && schalter_ton)
+             {
+                 _delay_ms(1500);
+                 state = PET; //auf PET setzen;
+             }
+             else
+             {
+                 _delay_ms(1500);
+                 state = ALU; //auf Alu setzen;
+             }
+            break;
+            case PET:
+            led_Tonne_zu = 0;
+            led_Tonne_auf = 0;           
+            rot = 0;
+            gruen = 250;
+            blau = 0;
+            rgbWrite(rot, gruen, blau);
+            lcdLog("PET erkannt");
+            _delay_ms(2500);
+            state = TONNE_AUF;
+            if (taster_Abfall_drinnen)
+            {
+                state = TONNE_AUF; //auf Tonne auf setzen;
+                
+            }
             break;
             case ALU:
-            lcdWriteText(0,0,"ALU ERKNAT  ");
-            if (schalter_Pet_Alu_Muell_drinnen)
+            rot = 0;
+            gruen = 0;
+            blau = 250;
+            led_Tonne_zu = 0;
+            led_Tonne_auf = 0;
+            rgbWrite(rot, gruen, blau);
+            lcdLog("Alu erkannt");
+            _delay_ms(2500);
+            state = TONNE_AUF;
+            if (taster_Abfall_drinnen)
             {
-                state = STARTUP;
+                state = TONNE_AUF; //Zustand auf Tonne auf setzen;
+                
             }
-            led_Alu = LED_ALU;
-            led_Muell_offen =0;
-            led_Muell_zu =0;
-            led_Pet =0;
-            led_Muell =0;
-
-            lcdWriteText(1,0,"Eimer Alu auf");
-            lcdWriteText(2,0,"Eimer Pet zu");
-            lcdWriteText(3,0,"Eimer Müll zu");
-            break;
-            case MUELL:
-            lcdWriteText(0,0,"MUELL ERKNAT   ");
-            if (schalter_Pet_Alu_Muell_drinnen)
-            {
-                state = STARTUP;
-            }
-            led_Muell = LED_MUELL;
-            led_Muell_offen =0;
-            led_Muell_zu =0;
-            led_Pet =0;
-            led_Alu =0;
-
-            lcdWriteText(1,0,"Eimer Müll auf");
-            lcdWriteText(2,0,"Eimer Alu zu");
-            lcdWriteText(3,0,"Eimer Pet zu");
             break;
             default:
             ;
         }
         //Ausgabe------------------------------------------------------------------
-        ledWriteAll(led_Muell_offen | led_Muell_zu | led_Pet | led_Alu | led_Muell);
+        ledWriteAll( led_Tonne_auf | led_Tonne_zu );
+        rgbWrite(rot, gruen, blau);
+        _delay_ms(SYSTEMTACKT_MS);
     }
 }
 
