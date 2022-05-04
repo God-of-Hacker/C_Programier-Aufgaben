@@ -34,8 +34,8 @@
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
 #define IM_MASKE_POWER_SCHALTER             (1<<7)
-#define IM_MASKE_ALARM_QUIT_SCHALTER        (1<<6)
-#define IM_MASKE_DISORDER_QUIT_SCHALTER     (1<<7)
+#define IM_MASKE_ALARM_QUIT_SCHALTER        (1<<1)
+#define IM_MASKE_DISORDER_QUIT_SCHALTER     (1<<2)
 #define IM_MASKE_OZON_SENSOR                (1<<3)
 
 #define OUT_POWER_LED                       (1<<0)
@@ -65,11 +65,6 @@ int main(void)
     uint8_t disorderQuitSchalter=0;                                                         //Variabeln auf 0 setzen
     uint8_t ozonSensor=0;
     
-    uint8_t altTaster=0;
-    uint8_t neuTaster=0;
-    uint8_t posflanke=0;
-    
-    
     uint16_t powerLed=0;
     uint16_t alarmLed=0;
     uint16_t disorderLed=0;
@@ -90,12 +85,9 @@ int main(void)
     while(1)
     {
         //Eingabe------------------------------------------------------------------
-        altTaster =neuTaster;
-        neuTaster = buttonReadAllPL();
-        posflanke = (altTaster ^ neuTaster) & neuTaster;
         powerSchalter = switchReadAll() & IM_MASKE_POWER_SCHALTER;                          //Power schalter
-        alarmQuitSchalter = posflanke & IM_MASKE_ALARM_QUIT_SCHALTER;                       //alarm quit schalter
-        disorderQuitSchalter = posflanke & IM_MASKE_DISORDER_QUIT_SCHALTER;                 //disorder quit schalter
+        alarmQuitSchalter = switchReadAll() & IM_MASKE_ALARM_QUIT_SCHALTER;                 //alarm quit schalter
+        disorderQuitSchalter = switchReadAll() & IM_MASKE_DISORDER_QUIT_SCHALTER;           //disorder quit schalter
         ozonSensor = switchReadAll() & IM_MASKE_OZON_SENSOR;                                //Ozon Sensor
         //Verarbeitung-------------------------------------------------------------
         if (powerSchalter)                                                                  //Power schalter ?
