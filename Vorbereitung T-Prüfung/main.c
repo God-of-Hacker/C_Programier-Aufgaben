@@ -45,12 +45,11 @@
 #define OUT_VALVE_LED                       (1<<4)                                          //Konstanten definieren
 #define OFF                                  0
 
-#define ON_TIME                             150
-#define OFF_TIME                             50
+#define ON_TIME                              50
+#define OFF_TIME                            150
 #define PERIODE                             (ON_TIME + OFF_TIME)
 
-#define FEHLER_FUNKTION_ON                  8000
-#define FEHLER_FUNKTION_OFF                 8000
+#define DAUER_BIS_FEHLFUNKTION              8000
 #define ALARM_FEHLER                       16000
 
 
@@ -79,8 +78,8 @@ int main(void)
     uint16_t blinken=0;
     uint16_t timerBlinken=0;
     
-    uint16_t timerFehlerfunktionOn=0;
-    uint16_t timerFehlerfunktionOff=0;
+    uint16_t timerFehlfunktionOn=0;
+    uint16_t timerFehlfunktionOff=0;
     uint16_t timerAlarmFehler=0;
 
     //Initialisieren
@@ -103,21 +102,21 @@ int main(void)
             powerLed = OUT_POWER_LED;                                                       //Power Ledauf 1 setzen
             if (ozonSensor)                                                                 //Ozon sensor ?
             {
-                valveLed = OUT_VALVE_LED;                                                   //vave led auf 1 setzen
+                valveLed = OFF;                                                   //valve led auf 1 setzen
                 if (alarmQuitSchalter)                                                      //alarm quit schalter ?
                 {
                     blinken = 0;                                                            //blinken auf 0 setzen
                     alarmLed= OFF;                                                          //alarm led auf 0 setzen
-                    timerFehlerfunktionOn = 0;                                              //timerFehlerfunktionOn auf 0 setzen
+                    timerFehlfunktionOn = 0;                                                //timerFehlerfunktionOn auf 0 setzen
                     timerAlarmFehler = 0;                                                   //timerAlarmFehler auf 0 setzen
                 }
                 
-                if (timerFehlerfunktionOn >= FEHLER_FUNKTION_ON)                            //timerFehlerfunktionOn grösser gleich FEHLER_FUNKTION_ON ?
+                if (timerFehlfunktionOn >= DAUER_BIS_FEHLFUNKTION)                            //timerFehlerfunktionOn grösser gleich FEHLER_FUNKTION_ON ?
                 {
                     
                     blinken = 1;                                                            //blinken auf 1 setzen
                     disorderLed = OFF;                                                      //disorder led auf 0 setzen
-                    timerFehlerfunktionOff = 0;                                             //timerFehlerfunktionOff auf 0 setzen
+                    timerFehlfunktionOff = 0;                                               //timerFehlerfunktionOff auf 0 setzen
                     if (timerAlarmFehler>= ALARM_FEHLER)                                    //timerAlarmFehler grösser gleich ALARM_FEHLER ?
                     {
                         remoteAlarmLed = OUT_REMOTE_ALARM_LED;                              //remoteAlarm Led auf 1 setzen
@@ -128,19 +127,19 @@ int main(void)
             {
                 alarmLed= OFF;                                                              //alarm led auf 0 setzen
                 blinken = 0;                                                                //blinken auf 0 setzen
-                valveLed = OFF;                                                             //valve Led auf 0 setzen
+                valveLed = OUT_VALVE_LED;                                                             //valve Led auf 0 setzen
                 if (disorderQuitSchalter)                                                   //disorder Quit Schalter ?
                 {
                     
                     disorderLed= OFF;                                                       //disorder Led auf 1 setzen
-                    timerFehlerfunktionOff = 0;                                             //timerFehlerfunktionOff auf 0 setzen
+                    timerFehlfunktionOff = 0;                                               //timerFehlerfunktionOff auf 0 setzen
                 }
                 
-                if (timerFehlerfunktionOff >= FEHLER_FUNKTION_OFF)                          //timerFehlerfunktionOff grösser gleichFEHLER_FUNKTION_OFF ?
+                if (timerFehlfunktionOff >= DAUER_BIS_FEHLFUNKTION)                          //timerFehlerfunktionOff grösser gleichFEHLER_FUNKTION_OFF ?
                 {
                     alarmLed= OFF;                                                          //alarm Led auf 0 setzen
                     disorderLed = OUT_DISORDER_LED;                                         //disorder Led auf 1 setzen
-                    timerFehlerfunktionOn = 0;                                              //timerFehlerfunktionOn auf 0 setzen
+                    timerFehlfunktionOn = 0;                                                //timerFehlerfunktionOn auf 0 setzen
                 }
             }
         }
@@ -152,8 +151,8 @@ int main(void)
             remoteAlarmLed= OFF;                                                            //remoteAlarm Led auf 0 setzen
             valveLed= OFF;                                                                  //valve Led auf 0 setzen
             blinken = 0;                                                                    //blinken auf 0 setzen
-            timerFehlerfunktionOn=0;                                                        //timerFehlerfunktionOn auf 0 setzen
-            timerFehlerfunktionOff=0;                                                       //timerFehlerfunktionOff auf 0 setzen
+            timerFehlfunktionOn=0;                                                          //timerFehlerfunktionOn auf 0 setzen
+            timerFehlfunktionOff=0;                                                         //timerFehlerfunktionOff auf 0 setzen
             timerAlarmFehler=0;                                                             //timerAlarmFehler auf 0 setzen
         }
         //Ausgabe------------------------------------------------------------------
@@ -173,12 +172,12 @@ int main(void)
         {
             timerBlinken = PERIODE;                                                         //timerBlinken gleich PERIODE
         }
-        ledWriteAll(powerLed | alarmLed | disorderLed | remoteAlarmLed | valveLed);        //alle led's ausgeben
+        ledWriteAll(powerLed | alarmLed | disorderLed | remoteAlarmLed | valveLed);         //alle led's ausgeben
         //Warten------------------------------------------------------------------
         _delay_ms(PROGRAMTAKT_MS);                                                          //PROGRAMTAKT (10ms) abwarten
-        timerFehlerfunktionOn = timerFehlerfunktionOn +PROGRAMTAKT_MS;                      // timerFehlerfunktionOn hochzählen (10ms)
-        timerFehlerfunktionOff = timerFehlerfunktionOff +PROGRAMTAKT_MS;                    //timerFehlerfunktionOff hochzählen (10ms)
-        timerAlarmFehler = timerAlarmFehler +PROGRAMTAKT_MS;                                //timerAlarmFehler hochzählen (10ms)
+        timerFehlfunktionOn = timerFehlfunktionOn + PROGRAMTAKT_MS;                          // timerFehlerfunktionOn hochzählen (10ms)
+        timerFehlfunktionOff = timerFehlfunktionOff + PROGRAMTAKT_MS;                        //timerFehlerfunktionOff hochzählen (10ms)
+        timerAlarmFehler = timerAlarmFehler + PROGRAMTAKT_MS;                                //timerAlarmFehler hochzählen (10ms)
         timerBlinken = timerBlinken + PROGRAMTAKT_MS;                                       //timerBlinken hochzählen (10ms)
     }
 }
