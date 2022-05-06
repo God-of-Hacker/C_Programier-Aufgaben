@@ -34,9 +34,9 @@
 //uC-Board-Treiber hinzufügen
 #include "ucBoardDriver.h"
 #define IM_MASKE_POWER_SCHALTER             (1<<7)
-#define IM_MASKE_ALARM_QUIT_TASTER          (1<<6)
+#define IM_MASKE_ALARM_QUIT_SCHALTER        (1<<6)
 #define IM_MASKE_DISORDER_QUIT_SCHALTER     (1<<7)
-#define IM_MASKE_OZON_SENSOR                (1<<6)
+#define IM_MASKE_OZON_SENSOR                (1<<3)
 
 #define OUT_POWER_LED                       (1<<0)
 #define OUT_ALARM_LED                       (1<<1)
@@ -52,7 +52,7 @@
 #define DAUER_BIS_FEHLFUNKTION              8000
 #define ALARM_FEHLER                       24000
 
-typedef enum zustand_t {AUS, ZU_VIEL_OZON, ZU_WENIG_OZON, ALARM} zustand_t;
+typedef enum zustand_t {AUS, ZU_VIEL_OZON, ZU_WENIG_OZON, ALARM} zustand_t
 
 #define PROGRAMTAKT_MS                      10
 //Hauptprogramm
@@ -60,8 +60,8 @@ int main(void)
 {
     //Variablen
     uint8_t powerSchalter=0;
-    uint8_t alarmQuitTaster=0;
-    uint8_t disorderQuitTaster=0;                                                         //Variabeln auf 0 setzen
+    uint8_t alarmQuitSchalter=0;
+    uint8_t disorderQuitSchalter=0;                                                         //Variabeln auf 0 setzen
     uint8_t ozonSensor=0;
     
     uint8_t altTaster=0;
@@ -78,10 +78,9 @@ int main(void)
     uint16_t blinken=0;
     uint16_t timerBlinken=0;
     
-    uint64_t timerAlarm=0;
-    uint64_t timerDisorder=0;
-    uint64_t timerRemote=0;
-    zustand_t state = AUS;
+    uint16_t timerFehlfunktionOn=0;
+    uint16_t timerFehlfunktionOff=0;
+    uint16_t timerAlarmFehler=0;
 
     //Initialisieren
     initBoard(1);                                                                           //Hardware Initialisieren
@@ -93,114 +92,26 @@ int main(void)
         altTaster =neuTaster;                                                               //Alter Buttonzustand
         neuTaster = buttonReadAllPL();                                                      //Neuer Buttonzustand
         posflanke = (altTaster ^ neuTaster) & neuTaster;                                    //Positive Flanken aus altem und neuem Buttonzustand auslessen
-        alarmQuitTaster = posflanke & IM_MASKE_ALARM_QUIT_TASTER;                       //alarm quit Taster  aus positive Flanken auslessen
-        disorderQuitTaster = posflanke & IM_MASKE_DISORDER_QUIT_SCHALTER;                 //disorder quit schalterdisorder quit Taster  aus positive Flanken auslessen
         powerSchalter = switchReadAll() & IM_MASKE_POWER_SCHALTER;                          //Power schalter
+        alarmQuitSchalter = posflanke & IM_MASKE_ALARM_QUIT_SCHALTER;                       //alarm quit Taster  aus positive Flanken auslessen
+        disorderQuitSchalter = posflanke & IM_MASKE_DISORDER_QUIT_SCHALTER;                 //disorder quit schalterdisorder quit Taster  aus positive Flanken auslessen
         ozonSensor = switchReadAll() & IM_MASKE_OZON_SENSOR;                                //Ozon Sensor
         //Verarbeitung-------------------------------------------------------------
-        if (powerSchalter)
-        {
-            powerLed = OUT_POWER_LED;
-        }
-        else
-        {
-            state = AUS;
-        }
-        if (disorderQuitTaster)                                                   //disorder Quit Schalter ?
-        {
-            disorderLed = OFF;
-            timerDisorder = 0;
-        }
-        if (!state == ZU_VIEL_OZON)
-        {
-            timerAlarm = OFF;
-        }
-        if (!state == ZU_WENIG_OZON)
-        {
-            timerDisorder = OFF;
-        }
-        if (!state == ALARM)
-        {
-            timerRemote = OFF;
-        }
-        switch(state)
-        {
-            case AUS:
-            lcdLog("Aus                 ");
+      
             powerLed= OFF;                                                                  //power Led auf 0 setzen
             alarmLed= OFF;                                                                  //alarm Led auf 0 setzen
             disorderLed= OFF;                                                               //disorder Led auf 0 setzen
             remoteAlarmLed= OFF;                                                            //remoteAlarm Led auf 0 setzen
             valveLed= OFF;                                                                  //valve Led auf 0 setzen
             blinken = 0;                                                                    //blinken auf 0 setzen
-            timerAlarm=0;                                                          //timerFehlerfunktionOn auf 0 setzen
-            timerDisorder=0;                                                         //timerFehlerfunktionOff auf 0 setzen
-            timerRemote=0;                                                             //timerAlarmFehler auf 0 setzen
-            if (powerSchalter)
-            {
-                //powerLed = OUT_POWER_LED;
-                state = ZU_WENIG_OZON;
-            }
-            if (ozonSensor && powerSchalter)
-            {
-                state = ZU_VIEL_OZON;
-            }
-            break;
-            case ZU_VIEL_OZON:
-            lcdLog("ZU VIEL OZON");
-            valveLed = OFF;
-            timerDisorder=0;
-            timerRemote = 0;
-            if (timerAlarm >= DAUER_BIS_FEHLFUNKTION)                          //timerFehlerfunktionOn grösser gleich FEHLER_FUNKTION_ON ?
-            {
-                state = ALARM;
-            }
-            if (!ozonSensor && powerSchalter)
-            {
-                state = ZU_WENIG_OZON;
-            }
-            break;
-            case ZU_WENIG_OZON:
-            lcdLog("ZU WENIG OZON");
-            valveLed = OUT_VALVE_LED;
-            timerAlarm = 0;
-            if (timerDisorder >= DAUER_BIS_FEHLFUNKTION)                          //timerFehlerfunktionOn grösser gleich FEHLER_FUNKTION_ON ?
-            {
-                disorderLed = OUT_DISORDER_LED;
-            }
-            
-            if (ozonSensor && powerSchalter)
-            {
-                state = ZU_VIEL_OZON;
-            }
-            break;
-            case ALARM:
-            lcdLog("ALARM              ");
-            blinken = 1;
-            timerDisorder = OFF;
-            if (timerRemote>= ALARM_FEHLER)                                    //timerAlarmFehler grösser gleich ALARM_FEHLER ?
-            {
-                remoteAlarmLed = OUT_REMOTE_ALARM_LED;                              //remoteAlarm Led auf 1 setzen
-            }
-            if (alarmQuitTaster)                                                      //alarm quit schalter ?
-            {
-                alarmLed = OFF;
-                blinken = 0;
-                timerAlarm=0;
-                if (ozonSensor && powerSchalter)
-                {
-                    state = ZU_VIEL_OZON;
-                }
-                if (!ozonSensor && powerSchalter)
-                {
-                    state = ZU_WENIG_OZON;
-                }
-            }
-            break;
-        }
+            timerFehlfunktionOn=0;                                                          //timerFehlerfunktionOn auf 0 setzen
+            timerFehlfunktionOff=0;                                                         //timerFehlerfunktionOff auf 0 setzen
+            timerAlarmFehler=0;                                                             //timerAlarmFehler auf 0 setzen
+        
         //Ausgabe------------------------------------------------------------------
         if (blinken)                                                                        //blinken auf 1 setzen
         {
+
             if (timerBlinken>= ON_TIME)                                                     //timerBlinken grösser gleich ON_TIME 50ms ?
             {
                 alarmLed = OFF;                                                             //alarm Led 0 setzen
@@ -218,9 +129,11 @@ int main(void)
         ledWriteAll(powerLed | alarmLed | disorderLed | remoteAlarmLed | valveLed);         //alle led's ausgeben
         //Warten------------------------------------------------------------------
         _delay_ms(PROGRAMTAKT_MS);                                                          //PROGRAMTAKT (10ms) abwarten
-        timerAlarm = timerAlarm + PROGRAMTAKT_MS;                          // timerFehlerfunktionOn hochzählen (10ms)
-        timerDisorder = timerDisorder + PROGRAMTAKT_MS;                        //timerFehlerfunktionOff hochzählen (10ms)
-        timerRemote = timerRemote + PROGRAMTAKT_MS;                                //timerAlarmFehler hochzählen (10ms)
+        timerFehlfunktionOn = timerFehlfunktionOn + PROGRAMTAKT_MS;                          // timerFehlerfunktionOn hochzählen (10ms)
+        timerFehlfunktionOff = timerFehlfunktionOff + PROGRAMTAKT_MS;                        //timerFehlerfunktionOff hochzählen (10ms)
+        timerAlarmFehler = timerAlarmFehler + PROGRAMTAKT_MS;                                //timerAlarmFehler hochzählen (10ms)
         timerBlinken = timerBlinken + PROGRAMTAKT_MS;                                       //timerBlinken hochzählen (10ms)
+        //lcdLog("s: %u", timerAlarmFehler);
     }
 }
+

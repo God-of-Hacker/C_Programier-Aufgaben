@@ -89,10 +89,10 @@ void initBoard(uint8_t startAnimation)
     {
         lcdLight(255);
         rgbWrite(0,1023,0);
-        lcdWriteText(0,0,"      uC-Board      ");
-        lcdWriteText(1,0,"ATmega2560 at 16 MHz");
+        lcdWriteText(0,0,"      uC-porn      ");
+        lcdWriteText(1,0,"ATmega ahhh ja");
         lcdWriteText(2,0,"--------------------");
-        lcdWriteText(3,0,"Press any key to run");
+        lcdWriteText(3,0,"Please Press at me");
         uint8_t i=0;
         uint8_t goRight=1;
         uint8_t btnPressed=0;
