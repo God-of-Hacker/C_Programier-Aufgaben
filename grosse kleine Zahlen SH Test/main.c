@@ -59,9 +59,9 @@ int main(void)
     };
     
     uint16_t maxZahl = 0;
-    int32_t maxIndex = -1;
-    uint16_t minZahl = 0;
-    int32_t minIndex = -1;
+    uint16_t maxIndex = 0;
+    uint16_t minZahl = 65535;   // 2 hoch 16 dann - 1
+    uint16_t minIndex = 0;
     
     //Initialisieren
     initBoard(1);
@@ -69,24 +69,24 @@ int main(void)
     
     for (uint16_t i=0; i<SIZE;i=i+1)
     {
-        if (testArray[i] < maxZahl)
+        if (testArray[i] > maxZahl)
         {
             maxZahl = testArray[i],
-            maxZahl = i;
-            break;
+            maxIndex = i;
+           
         }
-        if (testArray[i] > minZahl)
+        if (testArray[i] < minZahl)
         {
             minZahl = testArray[i],
             minIndex = i;
-            break;
+            
         }
     }
     
     
           //Ausgabe------------------------------------------------------------------
-          lcdWriteText(0,0,"Min %05, Ind %05", minZahl, minIndex);
-          lcdWriteText(0,0,"Max %05, Ind %05", maxZahl, maxIndex);
+          lcdWriteText(0,0,"Min %5u, Ind %5u", minZahl, minIndex);
+          lcdWriteText(1,0,"Max %5u, Ind %5u", maxZahl, maxIndex);
     
     //Unendlichschlaufe
     while(1)
