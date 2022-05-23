@@ -58,28 +58,35 @@ int main(void)
         11933, 22958, 61231, 57095, 39850, 39160, 47316, 53204, 20357,  2753
     };
     
-    uint16_t i=0;
-    uint16_t zahlKommtVor=0;
-    uint16_t graosseZahl=0;
-    int32_t index=-1;
+    uint16_t maxZahl = 0;
+    int32_t maxIndex = -1;
+    uint16_t minZahl = 0;
+    int32_t minIndex = -1;
+    
     //Initialisieren
     initBoard(1);
-
-    for (i=0; i<SIZE; i=i+1)
+    
+    
+    for (uint16_t i=0; i<SIZE;i=i+1)
     {
-        if (testArray [i] > graosseZahl )
+        if (testArray[i] < maxZahl)
         {
-            graosseZahl = testArray [i];
-            zahlKommtVor=1;
-            index=i;
+            maxZahl = testArray[i],
+            maxZahl = i;
+            break;
+        }
+        if (testArray[i] > minZahl)
+        {
+            minZahl = testArray[i],
+            minIndex = i;
+            break;
         }
     }
     
-    if (zahlKommtVor)
-    {
-        lcdWriteText(0,0,"Index: %u ", index);
-    }
     
+          //Ausgabe------------------------------------------------------------------
+          lcdWriteText(0,0,"Min %05, Ind %05", minZahl, minIndex);
+          lcdWriteText(0,0,"Max %05, Ind %05", maxZahl, maxIndex);
     
     //Unendlichschlaufe
     while(1)
@@ -88,8 +95,7 @@ int main(void)
         
         //Verarbeitung-------------------------------------------------------------
         
-        //Ausgabe------------------------------------------------------------------
-        
+  
     }
 }
 

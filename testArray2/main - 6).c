@@ -61,7 +61,7 @@ int main(void)
     uint16_t i=0;
     uint16_t zahlKommtVor=0;
     uint16_t graosseZahl=0;
-    int32_t index=-1;
+    uint16_t index=0;
     //Initialisieren
     initBoard(1);
 
