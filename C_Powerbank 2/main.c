@@ -76,10 +76,10 @@ int main(void)
     uint64_t timerBlink_selber_ms = 0;
     uint64_t akkuBlinken = 0;
     uint64_t timerBlink_akku_ms = 0;
-    
+
     //Initialisieren
     initBoard(1);
-    
+
     //Unendlichschlaufe
     while(1)
     {
@@ -89,9 +89,9 @@ int main(void)
         geraet_Laden = switchReadAll() & IN_LADE_GERAET;
         selber_laden = switchReadAll() & IN_SELBER_LADE_GERAET;
         On = switchReadAll() & ON_OFF_SCHALTER;
-        
+
         //Verarbeitung-------------------------------------------------------------
-        
+
         if (geraet_Laden)
         {
             ladenAnzeige_Blinken = 1;
@@ -123,7 +123,7 @@ int main(void)
         if (On)
         {
             powerLed = OUT_POWER_LED;
-            
+
             if (ladenAnzeige_Blinken)
             {
                 if (timerBlink_laden_ms >= ON_TIME_LADEN)
@@ -145,23 +145,23 @@ int main(void)
                 powerLed = OUT_POWER_LED;
                 selberLaden_blinken = 0;
             }
-            
+
             //Einzeiler      wo die LED angezeigt wärden (0b11100000) / welcher Schalter (0b11000000)
-            akkuanzeige_Led =  (OUT_SPANNUG_LED_ANZEIGE>>(MAX_SPANNUG-inSpannungsmessung_schalter)) &      // mit dem schalter kann man auf LED binär zählen
-            OUT_SPANNUG_LED_ANZEIGE;
+            akkuanzeige_Led =  (OUT_SPANNUG_LED_ANZEIGE>>(MAX_SPANNUG-inSpannungsmessung_schalter)) &  OUT_SPANNUG_LED_ANZEIGE;    // mit dem schalter kann man auf LED binär zählen
+
             if (inSpannungsmessung_schalter == 0)
             {
-                
+
                 if (akkuBlinken)
                 {
                     if (timerBlink_akku_ms >= ON_AKKU)
                     {
-                        
+
                         akkuanzeige_Led = OFF;
                     }
                     if (timerBlink_akku_ms >= PERIOD_AKKU)
                     {
-                        
+
                         akkuanzeige_Led = OUT_AKKU_LED;
                         timerBlink_akku_ms = 0;
                     }
@@ -171,13 +171,13 @@ int main(void)
                     timerBlink_akku_ms = PERIOD_AKKU;
                 }
             }
-            
+
         }
         else
         {
             ladenAnzeige_Led = OFF;
-            
-            
+
+
         }
         if ((inSpannungsmessung_schalter == 3) && (selberLaden_blinken))
         {
@@ -186,8 +186,8 @@ int main(void)
         }
         if (selberLaden_blinken )
         {
-            
-            
+
+
             if (timerBlink_selber_ms >= ON_TIME_SELBER)
             {
                 powerLed = OFF;
@@ -196,18 +196,18 @@ int main(void)
             {
                 powerLed = OUT_POWER_LED;
                 timerBlink_selber_ms = 0;
-                
+
             }
         }
         else
         {
             timerBlink_selber_ms = PERIOD_SELBER;
         }
-        
-        
-        
+
+
+
         ledWriteAll(powerLed | ladenAnzeige_Led | akkuanzeige_Led);
-        
+
         //Warten-------------------------------------------------------------------
         _delay_ms(SYSTEM_TICK_MS);
         timerBlink_laden_ms = timerBlink_laden_ms + SYSTEM_TICK_MS;
