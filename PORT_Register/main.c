@@ -57,9 +57,9 @@ int main(void)
     //Initialisieren
     initBoard(0);
     
-    DDRA=0xff;
-    PORTA=0;
-    while(1);
+//     DDRA=0xff;
+//     PORTA=0;
+//     while(1);
     
     
     //1) Ausgang alles LED Low :                    für Ausgang muss DDRA auf 1 sein und für LED Low muss PORT auf 0 sein
